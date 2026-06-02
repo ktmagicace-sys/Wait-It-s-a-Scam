@@ -1,0 +1,16 @@
+<svg width="690" height="250" viewBox="0 0 690 250" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="160%">
+      <feDropShadow dx="0" dy="10" stdDeviation="10" flood-color="#02060B" flood-opacity="0.38"/>
+    </filter>
+  </defs>
+  <g opacity=".16">
+    <path d="M42 56c28 8 42 18 62 45" stroke="#2A6BFF" stroke-width="6" stroke-linecap="round"/>
+    <path d="M530 32c30 14 44 29 59 64" stroke="#2FA7FF" stroke-width="6" stroke-linecap="round"/>
+    <path d="M584 145c11-11 20-19 42-28" stroke="#31C7FF" stroke-width="8" stroke-linecap="round"/>
+  </g>
+  <g filter="url(#shadow)">
+    <text x="26" y="160" fill="#F9FDFF" font-size="104" font-weight="900" font-family="'Hiragino Sans','Yu Gothic','Noto Sans JP',sans-serif" letter-spacing="-5">あ, 詐欺ね</text>
+  </g>
+  <path d="M579 90c12-15 23-25 35-33M597 106c16-2 27-3 43-2M589 124c8 9 13 18 17 29" stroke="#4FD4FF" stroke-width="8" stroke-linecap="round"/>
+</svg>

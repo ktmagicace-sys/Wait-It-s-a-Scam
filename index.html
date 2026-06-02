@@ -1,0 +1,310 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>あ，詐欺ね</title>
+  <meta name="application-name" content="あ，詐欺ね" />
+  <meta name="apple-mobile-web-app-title" content="あ，詐欺ね" />
+  <link rel="icon" type="image/png" href="assets/app-icon.png" />
+  <link rel="apple-touch-icon" href="assets/app-icon.png" />
+  <link rel="stylesheet" href="style.css?v=20260529-5" />
+</head>
+<body>
+  <main id="app" class="app-shell">
+    <section id="menuScreen" class="screen active menu-screen">
+      <div class="menu-topbar">
+        <div class="account-topbar-group">
+          <button id="accountBtn" class="account-icon-btn" type="button" aria-label="アカウント">
+            <img src="assets/icon-account.svg" alt="" aria-hidden="true" />
+          </button>
+          <div id="accountTopbarName" class="account-topbar-name">ゲスト</div>
+        </div>
+        <button id="menuSettingsBtn" class="account-icon-btn ghost" type="button" aria-label="設定">
+          <img src="assets/icon-settings.svg" alt="" aria-hidden="true" />
+        </button>
+      </div>
+      <div class="menu-main">
+        <section class="hero-menu-card">
+          <div class="hero-menu-noise" aria-hidden="true"></div>
+          <div class="hero-menu-glow" aria-hidden="true"></div>
+          <div class="hero-logo-stage">
+            <img class="hero-logo-image" src="assets/menu-hero-complete.png" alt="あ，詐欺ね" />
+          </div>
+          <button id="startBtn" class="hero-start-btn" type="button">
+            <span class="hero-start-icon" aria-hidden="true"><img src="assets/icon-lightning.svg" alt="" /></span>
+            <span>プレイ開始</span>
+            <span class="hero-start-chevron" aria-hidden="true"><img src="assets/icon-chevron.svg" alt="" /></span>
+          </button>
+        </section>
+
+        <div class="menu-actions menu-action-grid">
+          <button id="tutorialBtn" class="menu-lite-btn icon-card-btn tutorial-entry-btn" type="button">
+            <img src="assets/icon-rule.svg" alt="" aria-hidden="true" />
+            <span>チュートリアル</span>
+          </button>
+          <button id="viewLastResultBtn" class="menu-lite-btn icon-card-btn" type="button">
+            <img src="assets/icon-result.svg" alt="" aria-hidden="true" />
+            <span>前回の結果</span>
+          </button>
+        </div>
+
+      </div>
+
+      <div id="guideCard" class="rule-card overlay-rule-card hidden">
+        <h2>ルール</h2>
+        <ul>
+          <li>各ターンで返信を3択から選ぶ</li>
+          <li>詐欺だと思ったら「詐欺ね」ボタンを押す</li>
+          <li>詐欺ではない会話も混ざる</li>
+          <li>まれに押した瞬間アウトの選択肢がある</li>
+          <li>結果は最後に概要と詳細で確認できる</li>
+        </ul>
+      </div>
+
+      <nav class="menu-bottom-nav" aria-label="メインナビ">
+        <button class="menu-nav-item active" type="button"><img src="assets/icon-home.svg" alt="" aria-hidden="true" /><span>ホーム</span></button>
+        <button id="menuNavSetsBtn" class="menu-nav-item" type="button"><img src="assets/icon-list.svg" alt="" aria-hidden="true" /><span>セット選択</span></button>
+        <button id="menuNavHistoryBtn" class="menu-nav-item" type="button"><img src="assets/icon-history.svg" alt="" aria-hidden="true" /><span>履歴</span></button>
+        <button id="menuNavSettingsBtn" class="menu-nav-item" type="button"><img src="assets/icon-settings.svg" alt="" aria-hidden="true" /><span>設定</span></button>
+      </nav>
+    </section>
+
+    <section id="setSelectScreen" class="screen set-select-screen">
+      <header class="set-select-header">
+        <div class="set-select-topbar">
+          <button id="setSelectBackBtn" class="set-select-icon-btn" type="button" aria-label="メニューへ">‹</button>
+          <div class="set-select-title">あそぶセットを決めよう</div>
+          <div class="set-select-topbar-spacer" aria-hidden="true"></div>
+        </div>
+        <div id="setSelectTabs" class="set-select-tabs" aria-label="セット選択タブ">
+          <button id="setsTabBtn" class="set-select-tab active" type="button" data-tab="sets">セット</button>
+          <button id="historyTabBtn" class="set-select-tab" type="button" data-tab="history">これまでのプレイ</button>
+        </div>
+      </header>
+
+      <div class="set-select-content">
+        <section id="setListPanel" class="set-select-panel" aria-label="プレイセット一覧">
+          <div id="playsetPicker" class="playset-picker"></div>
+        </section>
+        <section id="historyListPanel" class="set-select-panel hidden" aria-label="これまでのプレイ一覧">
+          <div id="playHistoryList" class="play-history-list">
+            <article class="history-empty">
+              <div class="history-empty-title">履歴を読み込み中です</div>
+              <p class="history-empty-text">プレイ履歴はここに表示されます。</p>
+            </article>
+          </div>
+        </section>
+      </div>
+
+    </section>
+
+    <section id="tutorialScreen" class="screen tutorial-screen">
+      <header class="tutorial-screen-head">
+        <button id="tutorialBackBtn" class="set-select-icon-btn" type="button" aria-label="メニューへ">‹</button>
+        <div class="tutorial-screen-title">チュートリアル</div>
+        <div class="set-select-topbar-spacer" aria-hidden="true"></div>
+      </header>
+      <div class="tutorial-screen-body">
+        <div class="tutorial-screen-hero" aria-hidden="true">
+          <img class="tutorial-screen-mascot" src="assets/tutorial-mascot-speaking.png" alt="" />
+        </div>
+        <section class="tutorial-screen-card" aria-live="polite" aria-label="チュートリアル案内">
+          <div id="tutorialScreenStepBadge" class="tutorial-step-badge">STEP 1</div>
+          <h2 id="tutorialScreenTitle" class="tutorial-title">チュートリアル</h2>
+          <p id="tutorialScreenMessage" class="tutorial-message"></p>
+          <p id="tutorialScreenHint" class="tutorial-hint"></p>
+          <div id="tutorialScreenPreview" class="tutorial-screen-preview" aria-hidden="true"></div>
+          <div class="tutorial-screen-actions">
+            <button id="tutorialNextBtn" class="primary-btn tutorial-next-btn" type="button">つぎへ</button>
+          </div>
+        </section>
+      </div>
+    </section>
+
+    <section id="countdownScreen" class="screen countdown-screen" aria-label="開始カウント">
+      <div class="countdown-shell">
+        <div class="countdown-label">まもなく開始</div>
+        <div id="countdownValue" class="countdown-value">3</div>
+      </div>
+    </section>
+
+    <div id="accountModal" class="settings-modal hidden" aria-hidden="true">
+      <div id="accountBackdrop" class="settings-backdrop"></div>
+      <section class="settings-panel account-panel" role="dialog" aria-modal="true" aria-labelledby="accountTitle">
+        <div class="settings-head">
+          <h2 id="accountTitle">アカウント</h2>
+          <button id="closeAccountBtn" class="settings-close-btn" type="button" aria-label="閉じる">×</button>
+        </div>
+        <div class="account-block">
+          <div id="accountSummary" class="account-summary"></div>
+          <label class="account-label" for="accountNameInput">名前でログイン</label>
+          <input id="accountNameInput" class="account-input" type="text" maxlength="20" placeholder="例: kensei" />
+          <div class="account-actions">
+            <button id="loginBtn" class="primary-btn" type="button">ログイン</button>
+            <button id="logoutBtn" class="secondary-btn" type="button">ログアウト</button>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div id="settingsModal" class="settings-modal hidden" aria-hidden="true">
+      <div id="settingsBackdrop" class="settings-backdrop"></div>
+      <section class="settings-panel settings-only-panel" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+        <div class="settings-head">
+          <h2 id="settingsTitle">設定</h2>
+          <button id="closeSettingsBtn" class="settings-close-btn" type="button" aria-label="閉じる">×</button>
+        </div>
+        <button id="muteToggleBtn" class="secondary-btn settings-mute-btn" type="button">音をミュート</button>
+        <div class="settings-section">
+          <div class="volume-control">
+            <span class="volume-label">BGMタイプ</span>
+            <span id="bgmThemeValue" class="volume-value">現在の曲</span>
+          </div>
+          <div class="theme-switcher" role="group" aria-label="BGMタイプ切替">
+            <button id="bgmThemeClassicBtn" class="theme-chip active" type="button" data-bgm-theme="classic">現在の曲</button>
+            <button id="bgmThemeFunBtn" class="theme-chip" type="button" data-bgm-theme="fun">ポップ</button>
+            <button id="bgmThemeStudioBtn" class="theme-chip" type="button" data-bgm-theme="studio">新しい曲</button>
+          </div>
+          <p class="settings-copy">メニューとプレイ中のBGMをセットで切り替えます。</p>
+        </div>
+        <div class="settings-section">
+          <div class="volume-control">
+            <span class="volume-label">SEタイプ</span>
+            <span id="sfxThemeValue" class="volume-value">現在の音</span>
+          </div>
+          <div class="theme-switcher" role="group" aria-label="SEタイプ切替">
+            <button id="sfxThemeClassicBtn" class="theme-chip active" type="button" data-sfx-theme="classic">現在の音</button>
+            <button id="sfxThemeStudioBtn" class="theme-chip" type="button" data-sfx-theme="studio">新しい音</button>
+          </div>
+          <p class="settings-copy">SEだけ別のテイストに切り替えることもできます。</p>
+        </div>
+        <div class="settings-section">
+          <label class="volume-control" for="fontSizeSlider">
+            <span class="volume-label">文字サイズ</span>
+            <span id="fontSizeValue" class="volume-value">100%</span>
+          </label>
+          <input id="fontSizeSlider" class="volume-slider" type="range" min="90" max="140" step="5" value="100" />
+          <p class="settings-copy">アプリ全体の文字サイズを調整します。</p>
+        </div>
+        <label class="volume-control" for="bgmVolumeSlider">
+          <span class="volume-label">BGM</span>
+          <span id="bgmVolumeValue" class="volume-value">70%</span>
+        </label>
+        <input id="bgmVolumeSlider" class="volume-slider" type="range" min="0" max="200" step="1" value="70" />
+        <label class="volume-control" for="seVolumeSlider">
+          <span class="volume-label">SE</span>
+          <span id="seVolumeValue" class="volume-value">100%</span>
+        </label>
+        <input id="seVolumeSlider" class="volume-slider" type="range" min="0" max="200" step="1" value="100" />
+      </section>
+    </div>
+
+    <section id="gameScreen" class="screen game-screen">
+      <header class="top-bar">
+        <button id="backToMenuBtn" class="icon-btn" aria-label="メニューへ">‹</button>
+        <div class="profile-dot" id="profileDot"></div>
+        <div class="top-meta">
+          <div id="chatName" class="chat-name">相手</div>
+          <div id="chatStatus" class="chat-status">オンライン</div>
+        </div>
+        <div id="scorePill" class="progress-pill battery-score tone-high">
+          <div class="battery-score-head">
+            <span class="battery-score-label">charge</span>
+            <span id="scoreDelta" class="battery-score-delta">+0</span>
+          </div>
+          <div class="battery-score-body">
+            <div class="battery-shell" aria-hidden="true">
+              <div id="batteryLevel" class="battery-level"></div>
+              <div class="battery-cap"></div>
+              <div class="battery-bolt">CHG</div>
+            </div>
+            <span id="scenarioCount" class="battery-score-value">0</span>
+          </div>
+        </div>
+      </header>
+
+      <section id="tutorialPracticePanel" class="tutorial-practice-panel hidden" aria-live="polite" aria-label="練習案内">
+        <div class="tutorial-practice-icon" aria-hidden="true">
+          <img src="assets/tutorial-mascot-speaking.png" alt="" />
+        </div>
+        <div class="tutorial-practice-copy">
+          <div id="tutorialPracticeStepBadge" class="tutorial-step-badge">STEP</div>
+          <h2 id="tutorialPracticeTitle" class="tutorial-title">練習</h2>
+          <p id="tutorialPracticeMessage" class="tutorial-message"></p>
+          <p id="tutorialPracticeHint" class="tutorial-hint"></p>
+        </div>
+      </section>
+
+      <div class="dm-layout">
+        <aside id="dmList" class="dm-list" aria-label="DM一覧"></aside>
+        <section class="chat-panel">
+          <div id="messageArea" class="message-area"></div>
+          <div id="feedbackOverlay" class="feedback-overlay" aria-live="polite"></div>
+          <div class="action-panel">
+            <button id="fraudBtn" class="fraud-btn">あ、詐欺ね</button>
+            <div id="choices" class="choices"></div>
+          </div>
+        </section>
+      </div>
+    </section>
+
+    <section id="resultScreen" class="screen result-screen">
+      <div class="result-header">
+        <div class="app-badge">RESULT</div>
+        <h1>判定結果</h1>
+        <p id="summaryText"></p>
+      </div>
+      <div class="result-main">
+        <section id="resultHero" class="result-hero"></section>
+        <section id="resultBreakdown" class="result-breakdown"></section>
+        <div id="scoreCards" class="score-grid"></div>
+        <div class="result-insight-grid">
+          <div class="chart-card compact-result-card">
+            <div class="section-head compact-section-head">
+              <h2>判定バランス</h2>
+              <p>全体傾向</p>
+            </div>
+            <div id="resultChart" class="result-chart"></div>
+          </div>
+          <div class="analysis-card compact-result-card">
+            <div class="section-head compact-section-head">
+              <h2>苦手タグ</h2>
+              <p>ミスの論点</p>
+            </div>
+            <div id="weakTags" class="tag-list"></div>
+          </div>
+        </div>
+        <div id="timingReviewCard" class="review-card compact-review-card result-review-toggle">
+          <button id="timingReviewToggleBtn" class="result-review-summary" type="button" aria-expanded="false" aria-controls="timingReviewBody">
+            <div>
+              <h2>判断の早さを振り返る</h2>
+              <p id="timingReviewSummary"></p>
+            </div>
+            <span class="review-toggle-indicator" aria-hidden="true">＋</span>
+          </button>
+          <div id="timingReviewBody" class="result-review-body hidden">
+            <div id="reviewPicker" class="review-picker"></div>
+            <article id="reviewDetail" class="review-detail hidden">
+              <div class="review-title">
+                <span id="reviewDetailTitle"></span>
+                <span id="reviewDetailStatus" class="review-status"></span>
+              </div>
+              <p id="reviewDetailMeta" class="review-meta"></p>
+              <p id="reviewDetailBody" class="review-body"></p>
+            </article>
+          </div>
+        </div>
+      </div>
+      <div class="result-actions">
+        <button id="restartBtn" class="primary-btn">もう一度プレイ</button>
+        <button id="resultSetSelectBtn" class="secondary-btn">セットを選択</button>
+        <button id="menuBtn" class="secondary-btn">メニューへ</button>
+      </div>
+    </section>
+  </main>
+
+  <script src="scenarios.js?v=20260529-5"></script>
+  <script src="app.js?v=20260529-5"></script>
+</body>
+</html>
