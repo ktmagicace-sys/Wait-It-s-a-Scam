@@ -2539,19 +2539,23 @@ function renderResultsFromSession(session) {
   state.resultReviewOpen = false;
   syncTimingReviewUi();
 
-  $("summaryText").textContent =
-    `${normalizedSession.playSetName}を走破。${summary.correct}/${summary.total}件を見抜き、${summary.totalSec}秒で完走。`;
-
   $("resultHero").innerHTML = `
     <div id="resultBurst" class="result-burst tone-${rank.tone}">
-      <div class="result-rank-chip">${emphasizeRankLabel(rank.label)}</div>
-      <div class="result-hero-title">判定結果</div>
+      <div class="result-stage-banner">
+        <span class="result-stage-banner-dot"></span>
+        <span class="result-stage-banner-text">判定結果</span>
+        <span class="result-stage-banner-dot"></span>
+      </div>
+      <div class="result-rank-chip">
+        <span class="result-rank-chip-text">${emphasizeRankLabel(rank.label)}</span>
+        <span class="result-rank-chip-icon" aria-hidden="true">!</span>
+      </div>
       <div class="result-hero-score-wrap">
         <div id="resultHeroScoreValue" class="result-hero-score">0</div>
         <div class="result-hero-unit">PT</div>
       </div>
       <div class="result-hero-comment">${comment.hero}</div>
-      <div class="result-hero-meta">${comment.meta}</div>
+      <div class="result-hero-meta">${normalizedSession.playSetName} / ${summary.correct}問正解 / ${summary.totalSec}秒</div>
     </div>
   `;
 
@@ -2634,7 +2638,6 @@ function buildResultCommentary(summary, logs, rank, reviewSummary) {
 
   return {
     hero: lines[0],
-    meta: topTag ? `ブレやすい論点: ${topTag}` : "大きな偏りなし",
     lead: topTag ? `${topTag}が今回の注意ポイント` : "今回のプレイから自動生成",
     lines
   };
