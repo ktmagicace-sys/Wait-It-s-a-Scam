@@ -445,10 +445,10 @@ const TUTORIAL_STEPS = [
     id: "welcome",
     screen: "tutorial",
     badge: "STEP 1",
-    title: "やることは2つだけ",
-    actionLabel: "3択で返す / 危ないなら赤で止める",
-    message: "このゲームでは、DMを読みながら「返す」か「止める」かを決めます。",
-    hint: "迷ったら、まずはこの2つの操作だけ覚えれば十分です。",
+    title: "やることは2つ",
+    actionLabel: "返す / 止める",
+    message: "DMを見て、返すか止めるかを決めます。",
+    hint: "まずはこの2つだけ覚えればOKです。",
     action: "next",
     buttonLabel: "つぎへ"
   },
@@ -457,9 +457,9 @@ const TUTORIAL_STEPS = [
     screen: "tutorial",
     badge: "STEP 2",
     title: "止めどきを見る",
-    actionLabel: "最後まで読まずに止めてよい",
-    message: "急がせる、お金を出させる、外のサイトやATMへ誘導する。こうした流れが見えたら止めどきです。",
-    hint: "危険だと思った時点で赤いボタンを押して大丈夫です。",
+    actionLabel: "危ないと思ったら止める",
+    message: "急がせる、お金、外部誘導。これが見えたら止めどきです。",
+    hint: "最後まで読まなくて大丈夫です。",
     action: "next",
     buttonLabel: "つぎへ"
   },
@@ -469,8 +469,8 @@ const TUTORIAL_STEPS = [
     badge: "STEP 3",
     title: "疑いすぎもNG",
     actionLabel: "普通のDMには落ち着いて返す",
-    message: "本物の連絡も混ざります。相手が公式確認を勧めたり、DMで個人情報を求めないなら、すぐ切らずに返してOKです。",
-    hint: "詐欺だけ止めて、普通の連絡は切りすぎないのがコツです。",
+    message: "本物の連絡も混ざります。すぐ切らず、内容を見て返します。",
+    hint: "止めるのは詐欺だけです。",
     action: "next",
     buttonLabel: "練習へ"
   },
@@ -480,8 +480,8 @@ const TUTORIAL_STEPS = [
     badge: "STEP 4",
     title: "2件だけ練習する",
     actionLabel: "1件目は返す / 2件目は止める",
-    message: "まずは普通のDMに返し、そのあと危ないDMを途中で止めます。",
-    hint: "いま見るべきことだけ上に短く出します。",
+    message: "1件目は返す。2件目は止める。",
+    hint: "押す場所は光ります。",
     action: "start",
     buttonLabel: "練習スタート"
   },
@@ -491,8 +491,8 @@ const TUTORIAL_STEPS = [
     badge: "STEP 5",
     title: "普通のDMに返す",
     actionLabel: "下の3択から1つ選ぶ",
-    message: "今回は危険な流れではありません。赤ではなく、返事を1つ選んで進めます。",
-    hint: "やることは「返す」です。",
+    message: "今回は返します。",
+    hint: "光っている3択を押します。",
     action: "wait-choice"
   },
   {
@@ -501,18 +501,18 @@ const TUTORIAL_STEPS = [
     badge: "STEP 6",
     title: "怪しいDMを読む",
     actionLabel: "すぐ従わず、確認する返事を選ぶ",
-    message: "次は危ない流れのあるDMです。すぐ従う返事ではなく、確認する返事を選びます。",
-    hint: "やることは「様子を見る返し方を選ぶ」です。",
+    message: "すぐ従わず、確認します。",
+    hint: "光っている返事を押します。",
     action: "wait-choice"
   },
   {
     id: "fraud-stop",
     screen: "game",
     badge: "STEP 7",
-    title: "ここで止める",
-    actionLabel: "赤い『あ、詐欺ね』を押す",
-    message: "ATMへ誘導し始めました。ここまでで十分危険なので、もう返さずに止めます。",
-    hint: "やることは「赤いボタンを押す」です。",
+    title: "これ，詐欺だ！",
+    actionLabel: "「あ，詐欺ね」を押す",
+    message: "",
+    hint: "",
     action: "wait-fraud"
   },
   {
@@ -520,9 +520,9 @@ const TUTORIAL_STEPS = [
     screen: "tutorial",
     badge: "COMPLETE",
     title: "チュートリアル完了",
-    actionLabel: "通常プレイで練習できる",
-    message: "これで始める準備はできました。返すか止めるかを、その場で決めていけば大丈夫です。",
-    hint: "迷ったら「急がせる・外へ誘導する・個人情報を求める」を思い出してください。",
+    actionLabel: "通常プレイへ",
+    message: "準備OKです。",
+    hint: "迷ったら、急がせる・外部誘導・個人情報要求を見ます。",
     action: "finish",
     buttonLabel: "メニューへ"
   }
@@ -648,24 +648,31 @@ function syncTutorialCoach() {
   const step = tutorialStep();
   const tutorialScreen = $("tutorialScreen");
   const practicePanel = $("tutorialPracticePanel");
+  const gameScreen = $("gameScreen");
   const isActive = state.tutorial.active && Boolean(step);
 
   if (!isActive) {
     tutorialScreen.classList.add("hidden");
     practicePanel.classList.add("hidden");
+    gameScreen.classList.remove("tutorial-coach-active", "tutorial-coach-stop");
+    syncTutorialTargets();
     return;
   }
 
   const onTutorialScreen = step.screen === "tutorial";
   tutorialScreen.classList.toggle("hidden", !onTutorialScreen);
   practicePanel.classList.toggle("hidden", onTutorialScreen);
+  gameScreen.classList.toggle("tutorial-coach-active", !onTutorialScreen);
+  gameScreen.classList.toggle("tutorial-coach-stop", step.id === "fraud-stop");
 
   if (onTutorialScreen) {
     $("tutorialScreenStepBadge").textContent = step.badge;
     $("tutorialScreenTitle").textContent = step.title;
     $("tutorialScreenAction").textContent = step.actionLabel || "";
-    $("tutorialScreenMessage").textContent = step.message;
-    $("tutorialScreenHint").textContent = step.hint;
+    $("tutorialScreenMessage").textContent = step.message || "";
+    $("tutorialScreenHint").textContent = step.hint || "";
+    $("tutorialScreenMessage").classList.toggle("hidden", !step.message);
+    $("tutorialScreenHint").classList.toggle("hidden", !step.hint);
     $("tutorialScreenPreview").innerHTML = tutorialPreviewMarkup(step.id);
 
     const nextBtn = $("tutorialNextBtn");
@@ -674,14 +681,35 @@ function syncTutorialCoach() {
     if (showNext) {
       nextBtn.textContent = step.buttonLabel || "つぎへ";
     }
+    syncTutorialTargets();
     return;
   }
 
   $("tutorialPracticeStepBadge").textContent = step.badge;
   $("tutorialPracticeTitle").textContent = step.title;
   $("tutorialPracticeAction").textContent = step.actionLabel || "";
-  $("tutorialPracticeMessage").textContent = step.message;
-  $("tutorialPracticeHint").textContent = step.hint;
+  $("tutorialPracticeMessage").textContent = step.message || "";
+  $("tutorialPracticeHint").textContent = step.hint || "";
+  $("tutorialPracticeMessage").classList.toggle("hidden", !step.message);
+  $("tutorialPracticeHint").classList.toggle("hidden", !step.hint);
+  syncTutorialTargets();
+}
+
+function syncTutorialTargets() {
+  const step = tutorialStep();
+  const fraudBtn = $("fraudBtn");
+  if (fraudBtn) {
+    fraudBtn.classList.toggle("tutorial-target-pulse", Boolean(step && step.id === "fraud-stop"));
+  }
+
+  document.querySelectorAll(".choice-btn").forEach((button, index) => {
+    const shouldPulse = Boolean(step && (
+      step.id === "safe-practice" ||
+      (step.id === "fraud-read" && index !== 0)
+    ));
+    button.classList.toggle("tutorial-target-pulse", shouldPulse);
+    button.classList.toggle("tutorial-target-muted", Boolean(step && step.id === "fraud-read" && index === 0));
+  });
 }
 
 function goToTutorialStep(stepIndex) {
@@ -786,13 +814,13 @@ function tutorialAllowsChoice(choiceIndex) {
   if (!step) return true;
 
   if (step.id === "safe-practice") {
-    tutorialActionBlock("今回は普通の連絡なので、赤いボタンではなく3択から返事をしてみよう。");
+    tutorialActionBlock("光っている3択を押そう。");
     return true;
   }
 
   if (step.id === "fraud-read") {
     if (choiceIndex === 0) {
-      tutorialActionBlock("今はすぐ従う返事ではなく、確認する方向の返事を選ぼう。");
+      tutorialActionBlock("従わず、確認する返事を選ぼう。");
       return false;
     }
     state.tutorial.pendingStepIndex = TUTORIAL_STEPS.findIndex((item) => item.id === "fraud-stop");
@@ -800,7 +828,7 @@ function tutorialAllowsChoice(choiceIndex) {
   }
 
   if (step.id === "fraud-stop") {
-    tutorialActionBlock("ここでは返信せず、赤い『あ、詐欺ね』ボタンを押して止めよう。");
+    tutorialActionBlock("ここは「あ，詐欺ね」を押そう。");
     return false;
   }
 
@@ -2155,6 +2183,7 @@ function clearFeedback() {
 
 function setFraudButtonVisible(visible) {
   $("fraudBtn").classList.toggle("hidden", !visible);
+  syncTutorialTargets();
 }
 
 function showTurnMessage() {
@@ -2194,6 +2223,7 @@ function renderChoices(choices) {
     btn.addEventListener("click", () => chooseReply(normalizedChoice, choiceIndex));
     choicesEl.appendChild(btn);
   });
+  syncTutorialTargets();
 }
 
 function chooseReply(choice, choiceIndex) {
@@ -2450,23 +2480,20 @@ function easeOutQuint(t) {
   return 1 - ((1 - t) ** 5);
 }
 
-function animateResultNumbers(summary, timingSummary) {
+function animateResultNumbers(summary) {
   stopResultAnimation();
 
   const scoreEl = $("resultHeroScoreValue");
-  const timeEl = $("resultTimeValue");
-  const actionEl = $("resultActionValue");
   const statTargets = [
     { el: $("resultCardCorrect"), value: summary.correct },
     { el: $("resultCardWarn"), value: summary.warn },
-    { el: $("resultCardBad"), value: summary.bad },
-    { el: $("resultCardReview"), value: timingSummary.focusCount }
+    { el: $("resultCardBad"), value: summary.bad }
   ];
 
-  if (!scoreEl || !timeEl || !actionEl || statTargets.some((item) => !item.el)) return;
+  if (!scoreEl || statTargets.some((item) => !item.el)) return;
 
   const startAt = performance.now();
-  const duration = 1850;
+  const duration = 1200;
   const scoreStart = Math.max(0, Math.floor(summary.finalScore * 0.12));
 
   const tick = (now) => {
@@ -2475,9 +2502,6 @@ function animateResultNumbers(summary, timingSummary) {
     const scoreValue = Math.round(scoreStart + (summary.finalScore - scoreStart) * eased);
 
     scoreEl.textContent = String(scoreValue);
-    timeEl.textContent = String(Math.round(summary.totalSec * eased));
-    actionEl.textContent = String(Math.round(summary.actionCount * eased));
-
     statTargets.forEach(({ el, value }) => {
       el.textContent = String(Math.round(value * eased));
     });
@@ -2488,8 +2512,6 @@ function animateResultNumbers(summary, timingSummary) {
     }
 
     scoreEl.textContent = String(summary.finalScore);
-    timeEl.textContent = String(summary.totalSec);
-    actionEl.textContent = String(summary.actionCount);
     statTargets.forEach(({ el, value }) => {
       el.textContent = String(value);
       el.closest(".score-card")?.classList.add("result-pop");
@@ -2511,8 +2533,9 @@ function renderResultsFromSession(session) {
   state.resultSession = normalizedSession;
   const { summary, logs } = normalizedSession;
   const rank = scoreRank(summary);
-  const timingLogs = buildTimingReviewLogs(logs);
-  const timingSummary = summarizeTimingReview(timingLogs, summary);
+  const timingLogs = buildMistakeReviewLogs(logs);
+  const timingSummary = summarizeMistakeReview(timingLogs);
+  const comment = buildResultCommentary(summary, logs, rank, timingSummary);
   state.resultReviewOpen = false;
   syncTimingReviewUi();
 
@@ -2521,37 +2544,21 @@ function renderResultsFromSession(session) {
 
   $("resultHero").innerHTML = `
     <div id="resultBurst" class="result-burst tone-${rank.tone}">
-      <div class="result-rank-chip">${rank.label}</div>
-      <div id="resultHeroScoreValue" class="result-hero-score">0</div>
-      <div class="result-hero-unit">PT</div>
-      <div class="result-hero-comment">${rank.comment}</div>
-      <div class="result-hero-mark" aria-hidden="true">${rank.mark}</div>
-    </div>
-  `;
-
-  $("resultBreakdown").innerHTML = `
-    <div class="breakdown-card base">
-      <div class="breakdown-label">TIME</div>
-      <div class="breakdown-value"><span id="resultTimeValue">0</span><span class="breakdown-unit">s</span></div>
-      <div class="breakdown-sub">平均 ${summary.avgSec}秒 / 件</div>
-    </div>
-    <div class="breakdown-card penalty">
-      <div class="breakdown-label">ACTION</div>
-      <div class="breakdown-value"><span id="resultActionValue">0</span><span class="breakdown-unit">tap</span></div>
-      <div class="breakdown-sub">無駄なく操作できたか</div>
-    </div>
-    <div class="breakdown-card penalty alt">
-      <div class="breakdown-label">FLOW</div>
-      <div class="breakdown-value">${timingSummary.flowLabel}</div>
-      <div class="breakdown-sub">${timingSummary.flowText}</div>
+      <div class="result-rank-chip">${emphasizeRankLabel(rank.label)}</div>
+      <div class="result-hero-title">判定結果</div>
+      <div class="result-hero-score-wrap">
+        <div id="resultHeroScoreValue" class="result-hero-score">0</div>
+        <div class="result-hero-unit">PT</div>
+      </div>
+      <div class="result-hero-comment">${comment.hero}</div>
+      <div class="result-hero-meta">${comment.meta}</div>
     </div>
   `;
 
   const cards = [
     [summary.correct, "正解", "good", "見抜けた", "resultCardCorrect"],
-    [summary.warn, "注意", "warn", "遅め/誤検知", "resultCardWarn"],
-    [summary.bad, "危険", "bad", "見逃し/被害", "resultCardBad"],
-    [timingSummary.focusCount, "要復習", "speed", timingSummary.focusLabel, "resultCardReview"]
+    [summary.warn, "注意", "warn", "慎重さが必要", "resultCardWarn"],
+    [summary.bad, "危険", "bad", "振り返り優先", "resultCardBad"]
   ];
 
   $("scoreCards").innerHTML = cards.map(([, label, tone, sub, id]) => `
@@ -2563,35 +2570,26 @@ function renderResultsFromSession(session) {
     </div>
   `).join("");
 
-  renderResultChart(summary);
-  renderWeakTags(logs);
+  $("resultCommentLead").textContent = comment.lead;
+  $("resultCommentBody").innerHTML = comment.lines.map((line, index) => `
+    <div class="karaoke-line ${index === 0 ? "active" : ""}">
+      <span>${line}</span>
+    </div>
+  `).join("");
   $("timingReviewSummary").textContent = timingSummary.summaryText;
   renderReviewPicker(timingLogs);
-  animateResultNumbers(summary, timingSummary);
+  $("resultReviewBtn").textContent = timingLogs.length
+    ? `間違えたものを振り返る ${timingLogs.length}件`
+    : "振り返るものはありません";
+  $("resultReviewBtn").disabled = timingLogs.length === 0;
+  animateResultNumbers(summary);
 }
 
-function renderResultChart(summary) {
-  const chartRows = [
-    { label: "正解", count: summary.correct, tone: "good" },
-    { label: "注意", count: summary.warn, tone: "warn" },
-    { label: "危険", count: summary.bad, tone: "bad" }
-  ];
-
-  $("resultChart").innerHTML = chartRows.map((row) => {
-    const width = summary.total ? Math.max((row.count / summary.total) * 100, row.count > 0 ? 10 : 0) : 0;
-    return `
-      <div class="chart-row">
-        <div class="chart-label">${row.label}</div>
-        <div class="chart-bar-track">
-          <div class="chart-bar ${row.tone}" style="width: ${width}%"></div>
-        </div>
-        <div class="chart-value">${row.count}/${summary.total}</div>
-      </div>
-    `;
-  }).join("");
+function emphasizeRankLabel(label) {
+  return label.endsWith("！") ? label : `${label}！`;
 }
 
-function renderWeakTags(logs) {
+function summarizeMistakeTags(logs) {
   const badResults = new Set(["false_positive", "missed", "late_detected", "instant_scam"]);
   const tagCounts = new Map();
 
@@ -2599,39 +2597,70 @@ function renderWeakTags(logs) {
     log.tags.forEach((tag) => tagCounts.set(tag, (tagCounts.get(tag) || 0) + 1));
   });
 
-  const sorted = [...tagCounts.entries()].sort((a, b) => b[1] - a[1]).slice(0, 6);
-  const weakTags = $("weakTags");
+  return [...tagCounts.entries()].sort((a, b) => b[1] - a[1]);
+}
 
-  if (sorted.length === 0) {
-    weakTags.innerHTML = `<span class="tag">大きな弱点なし</span>`;
-    return;
+function buildResultCommentary(summary, logs, rank, reviewSummary) {
+  const tagSummary = summarizeMistakeTags(logs);
+  const topTag = tagSummary[0]?.[0] || null;
+  const lateCount = logs.filter((log) => log.result === "late_detected").length;
+  const missCount = logs.filter((log) => ["missed", "instant_scam"].includes(log.result)).length;
+  const falsePositiveCount = logs.filter((log) => log.result === "false_positive").length;
+  const lines = [];
+
+  if (missCount >= 2) {
+    lines.push("危険サインを最後まで見てしまった場面がある。途中で切る意識を強めたい。");
+  } else if (lateCount >= 2) {
+    lines.push("違和感には気づけている。次は一手早く止めると被害を防ぎやすい。");
+  } else if (falsePositiveCount >= 2) {
+    lines.push("慎重さはあるが、疑いすぎた場面もある。急かし方と内容を分けて見たい。");
+  } else if (summary.bad === 0 && summary.warn <= 1) {
+    lines.push("危ない流れをかなり安定して止められている。判断は良好。");
+  } else {
+    lines.push(rank.comment);
   }
 
-  weakTags.innerHTML = sorted.map(([tag, count]) => `<span class="tag">${tag} ×${count}</span>`).join("");
+  if (topTag) {
+    lines.push(`${topTag}が絡むDMで判断がぶれやすい。見えた時点で一段警戒したい。`);
+  } else {
+    lines.push("今回のミスは特定の論点に偏っていない。毎回の止め時をそろえたい。");
+  }
+
+  if (reviewSummary.focusCount > 0) {
+    lines.push("返信やタップを返す前に一呼吸置くと、見逃しと誤検知を減らしやすい。");
+  } else {
+    lines.push("ミスの振れは小さい。このテンポのまま続ければ安定しやすい。");
+  }
+
+  return {
+    hero: lines[0],
+    meta: topTag ? `ブレやすい論点: ${topTag}` : "大きな偏りなし",
+    lead: topTag ? `${topTag}が今回の注意ポイント` : "今回のプレイから自動生成",
+    lines
+  };
 }
 
 function getScenarioMeta(log) {
   return window.SCENARIOS.find((scenario) => scenario.id === log.scenarioId) || null;
 }
 
-function buildTimingReviewLogs(logs) {
+function buildMistakeReviewLogs(logs) {
   return logs
-    .filter((log) => log.isFraud)
+    .filter((log) => ["late_detected", "false_positive", "missed", "instant_scam"].includes(log.result))
     .map((log) => {
       const scenario = getScenarioMeta(log);
-      const detectableTurn = log.fraudDetectableTurn ?? scenario?.fraudDetectableTurn ?? null;
       const dangerTurn = log.dangerTurn ?? scenario?.dangerTurn ?? null;
-      let timingLabel = "ちょうどよい";
-      let timingTone = "good";
-      let timingMeta = "違和感を感じたタイミングで止められている。";
+      let timingLabel = "";
+      let timingTone = "warn";
+      let timingMeta = "";
 
-      if (log.result === "early_detected") {
-        timingLabel = "早め";
-        timingMeta = `${judgedTurnLabel(log.judgedTurn)}で止めた。安全寄りだが判断は良い。`;
-      } else if (log.result === "late_detected") {
+      if (log.result === "late_detected") {
         timingLabel = "遅め";
         timingTone = "warn";
         timingMeta = `${dangerTurn ? `${dangerTurn}手目` : "危険域"}の直前まで進んでいる。1手早く切りたい。`;
+      } else if (log.result === "false_positive") {
+        timingLabel = "誤検知";
+        timingMeta = "詐欺ではない会話を切っている。急かし方より要求内容を優先して見たい。";
       } else if (log.result === "missed") {
         timingLabel = "見逃し";
         timingTone = "bad";
@@ -2640,16 +2669,12 @@ function buildTimingReviewLogs(logs) {
         timingLabel = "即アウト";
         timingTone = "bad";
         timingMeta = "危険な選択肢を踏んだ。相手の要求をすぐ返さない意識が必要。";
-      } else if (log.result === "correct_detected") {
-        timingLabel = "適正";
-        timingMeta = `${judgedTurnLabel(log.judgedTurn)}で見抜けた。止め時は安定している。`;
       } else {
         return null;
       }
 
       return {
         ...log,
-        detectableTurn,
         dangerTurn,
         timingLabel,
         timingTone,
@@ -2668,9 +2693,8 @@ function judgedTurnLabel(turn) {
 }
 
 function syncTimingReviewUi() {
-  $("timingReviewCard").classList.toggle("open", state.resultReviewOpen);
-  $("timingReviewBody").classList.toggle("hidden", !state.resultReviewOpen);
-  $("timingReviewToggleBtn").setAttribute("aria-expanded", String(state.resultReviewOpen));
+  $("resultReviewModal").classList.toggle("hidden", !state.resultReviewOpen);
+  $("resultReviewModal").setAttribute("aria-hidden", String(!state.resultReviewOpen));
 }
 
 function toggleTimingReview() {
@@ -2678,38 +2702,28 @@ function toggleTimingReview() {
   syncTimingReviewUi();
 }
 
-function summarizeTimingReview(logs, summary) {
-  const early = logs.filter((log) => log.timingLabel === "早め").length;
+function summarizeMistakeReview(logs) {
   const late = logs.filter((log) => log.timingLabel === "遅め").length;
   const missed = logs.filter((log) => ["見逃し", "即アウト"].includes(log.timingLabel)).length;
-  const focusCount = late + missed;
+  const falsePositive = logs.filter((log) => log.timingLabel === "誤検知").length;
+  const focusCount = late + missed + falsePositive;
 
   if (logs.length === 0) {
     return {
-      summaryText: "今回は詐欺DMの止め時レビューはありません。",
+      summaryText: "今回は大きなミスはありませんでした。",
       flowLabel: "安定",
-      flowText: "危ない会話は少なめ",
+      flowText: "振り返り対象なし",
       focusCount: 0,
       focusLabel: "大きな崩れなし"
     };
   }
 
-  if (focusCount === 0) {
-    return {
-      summaryText: `早め ${early}件。遅れや見逃しはなく、止め時は安定していました。`,
-      flowLabel: "安定",
-      flowText: `早め ${early}件で安全寄り`,
-      focusCount: early,
-      focusLabel: "安全寄りに止められた"
-    };
-  }
-
   return {
-    summaryText: `早め ${early}件 / 遅め ${late}件 / 見逃し ${missed}件。気になる場面だけ開いて確認できます。`,
+    summaryText: `遅め ${late}件 / 誤検知 ${falsePositive}件 / 見逃し ${missed}件。気になる場面だけ確認できます。`,
     flowLabel: focusCount >= 3 ? "乱れ" : "注意",
-    flowText: focusCount >= 3 ? "止め時が少しぶれた" : "数件だけ見直したい",
+    flowText: focusCount >= 3 ? "判断が少しぶれた" : "数件だけ見直したい",
     focusCount,
-    focusLabel: focusCount >= 3 ? "止め時を見直す" : "数件の振り返り"
+    focusLabel: focusCount >= 3 ? "要振り返り" : "数件の振り返り"
   };
 }
 
@@ -2741,7 +2755,7 @@ function renderReviewPicker(logs) {
 
   if (logs.length === 0) {
     $("reviewDetail").classList.add("hidden");
-    picker.innerHTML = `<div class="review-empty">今回は開いて見直すべきタイミング項目はありません。</div>`;
+    picker.innerHTML = `<div class="review-empty">今回は開いて見直すべきミスはありません。</div>`;
     return;
   }
 
@@ -2834,12 +2848,17 @@ $("restartBtn").addEventListener("click", () => {
   playSfx("menu_tap");
   replayCurrentSet();
 });
-$("resultSetSelectBtn").addEventListener("click", () => {
+$("resultReviewBtn").addEventListener("click", () => {
+  if ($("resultReviewBtn").disabled) return;
   playSfx("menu_tap");
-  openSetSelectFromResult();
+  toggleTimingReview();
 });
-$("timingReviewToggleBtn").addEventListener("click", () => {
-  playSfx("menu_tap");
+$("resultReviewCloseBtn").addEventListener("click", () => {
+  playSfx("menu_back");
+  toggleTimingReview();
+});
+$("resultReviewBackdrop").addEventListener("click", () => {
+  playSfx("menu_back");
   toggleTimingReview();
 });
 $("setSelectBackBtn").addEventListener("click", () => {
