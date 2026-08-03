@@ -265,47 +265,39 @@
         <section id="resultHero" class="result-hero"></section>
         <section id="resultBreakdown" class="result-breakdown"></section>
         <div id="scoreCards" class="score-grid"></div>
-        <div class="result-insight-grid">
-          <div class="chart-card compact-result-card">
-            <div class="section-head compact-section-head">
-              <h2>判定バランス</h2>
-              <p>全体傾向</p>
-            </div>
-            <div id="resultChart" class="result-chart"></div>
+        <section id="resultCommentary" class="compact-result-card result-commentary">
+          <div class="section-head compact-section-head">
+            <h2>コメント</h2>
+            <p id="resultCommentLead"></p>
           </div>
-          <div class="analysis-card compact-result-card">
-            <div class="section-head compact-section-head">
-              <h2>苦手タグ</h2>
-              <p>ミスの論点</p>
-            </div>
-            <div id="weakTags" class="tag-list"></div>
-          </div>
-        </div>
-        <div id="timingReviewCard" class="review-card compact-review-card result-review-toggle">
-          <button id="timingReviewToggleBtn" class="result-review-summary" type="button" aria-expanded="false" aria-controls="timingReviewBody">
-            <div>
-              <h2>判断の早さを振り返る</h2>
-              <p id="timingReviewSummary"></p>
-            </div>
-            <span class="review-toggle-indicator" aria-hidden="true">＋</span>
-          </button>
-          <div id="timingReviewBody" class="result-review-body hidden">
-            <div id="reviewPicker" class="review-picker"></div>
-            <article id="reviewDetail" class="review-detail hidden">
-              <div class="review-title">
-                <span id="reviewDetailTitle"></span>
-                <span id="reviewDetailStatus" class="review-status"></span>
-              </div>
-              <p id="reviewDetailMeta" class="review-meta"></p>
-              <p id="reviewDetailBody" class="review-body"></p>
-            </article>
-          </div>
-        </div>
+          <div id="resultCommentBody" class="karaoke-commentary"></div>
+        </section>
       </div>
       <div class="result-actions">
+        <button id="resultReviewBtn" class="secondary-btn">間違えたものを振り返る</button>
         <button id="restartBtn" class="primary-btn">もう一度プレイ</button>
-        <button id="resultSetSelectBtn" class="secondary-btn">セットを選択</button>
         <button id="menuBtn" class="secondary-btn">メニューへ</button>
+      </div>
+      <div id="resultReviewModal" class="settings-modal hidden" aria-hidden="true">
+        <div id="resultReviewBackdrop" class="settings-backdrop"></div>
+        <section class="settings-panel result-review-panel" role="dialog" aria-modal="true" aria-labelledby="resultReviewTitle">
+          <div class="settings-head compact-modal-head">
+            <div>
+              <h2 id="resultReviewTitle">間違えたものを振り返る</h2>
+              <p id="timingReviewSummary" class="result-review-copy"></p>
+            </div>
+            <button id="resultReviewCloseBtn" class="settings-close-btn" type="button" aria-label="振り返りを閉じる">×</button>
+          </div>
+          <div id="reviewPicker" class="review-picker"></div>
+          <article id="reviewDetail" class="review-detail hidden">
+            <div class="review-title">
+              <span id="reviewDetailTitle"></span>
+              <span id="reviewDetailStatus" class="review-status"></span>
+            </div>
+            <p id="reviewDetailMeta" class="review-meta"></p>
+            <p id="reviewDetailBody" class="review-body"></p>
+          </article>
+        </section>
       </div>
     </section>
   </main>
