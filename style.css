@@ -3680,11 +3680,13 @@ button {
 
 /* Result screen rebuild */
 .result-screen {
-  grid-template-rows: minmax(0, 1fr) auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
   min-height: var(--viewport-height);
-  padding: calc(env(safe-area-inset-top) + 12px) 14px calc(env(safe-area-inset-bottom) + 12px);
+  padding: calc(env(safe-area-inset-top) + 10px) 12px calc(env(safe-area-inset-bottom) + 10px);
   overflow: hidden;
-  gap: 8px;
+  gap: 6px;
   background:
     radial-gradient(circle at 50% 4%, rgba(255, 194, 58, 0.26), transparent 18%),
     radial-gradient(circle at 18% 12%, rgba(47, 140, 255, 0.28), transparent 22%),
@@ -3693,10 +3695,10 @@ button {
 }
 
 .result-main {
-  min-height: 0;
+  flex: 0 0 auto;
   display: grid;
-  grid-template-rows: minmax(0, 1.1fr) minmax(0, 0.9fr);
-  gap: 8px;
+  grid-template-rows: auto auto;
+  gap: 6px;
 }
 
 .result-hero,
@@ -3707,13 +3709,12 @@ button {
 .result-burst {
   position: relative;
   min-height: 0;
-  height: 100%;
-  padding: 12px 14px 10px;
+  padding: 10px 12px 8px;
   display: grid;
-  grid-template-rows: auto auto 1fr auto auto;
+  grid-template-rows: auto auto auto auto auto;
   justify-items: center;
   align-items: start;
-  gap: 6px;
+  gap: 4px;
   border: 3px solid #ffca42;
   border-radius: 28px;
   background:
@@ -3744,7 +3745,7 @@ button {
   justify-content: center;
   gap: 10px;
   min-width: min(100%, 300px);
-  padding: 10px 18px;
+  padding: 8px 14px;
   border-radius: 22px;
   background: linear-gradient(180deg, #132a58 0%, #091430 100%);
   border: 2px solid rgba(255, 194, 58, 0.9);
@@ -3753,7 +3754,7 @@ button {
 
 .result-stage-banner-text {
   color: #ffffff;
-  font-size: calc(18px * var(--font-scale));
+  font-size: calc(16px * var(--font-scale));
   font-weight: 1000;
   letter-spacing: 0.18em;
 }
@@ -3772,7 +3773,7 @@ button {
   position: relative;
   z-index: 1;
   width: min(100%, 340px);
-  padding: 12px 18px;
+  padding: 9px 14px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -3787,21 +3788,21 @@ button {
 
 .result-rank-chip-text {
   color: #5b1800;
-  font-size: calc(28px * var(--font-scale));
+  font-size: calc(24px * var(--font-scale));
   font-weight: 1000;
   letter-spacing: 0.04em;
   line-height: 1;
 }
 
 .result-rank-chip-icon {
-  width: 42px;
-  height: 42px;
+  width: 34px;
+  height: 34px;
   border-radius: 50%;
   display: grid;
   place-items: center;
   background: rgba(91, 24, 0, 0.14);
   color: #5b1800;
-  font-size: calc(26px * var(--font-scale));
+  font-size: calc(20px * var(--font-scale));
   font-weight: 1000;
 }
 
@@ -3819,7 +3820,7 @@ button {
 
 .result-hero-score {
   min-width: 0;
-  font-size: clamp(calc(92px * var(--font-scale)), calc(26vw * var(--font-scale)), calc(180px * var(--font-scale)));
+  font-size: clamp(calc(74px * var(--font-scale)), calc(22vw * var(--font-scale)), calc(140px * var(--font-scale)));
   font-weight: 1000;
   line-height: 0.84;
   letter-spacing: -0.08em;
@@ -3833,9 +3834,9 @@ button {
 }
 
 .result-hero-unit {
-  margin-bottom: 12px;
+  margin-bottom: 8px;
   color: #d7f3ff;
-  font-size: calc(28px * var(--font-scale));
+  font-size: calc(22px * var(--font-scale));
   font-weight: 1000;
   line-height: 1;
   letter-spacing: 0.08em;
@@ -3846,12 +3847,12 @@ button {
   position: relative;
   z-index: 1;
   max-width: min(100%, 320px);
-  padding: 8px 14px;
+  padding: 6px 10px;
   border-radius: 18px;
   background: rgba(17, 31, 63, 0.82);
   border: 1px solid rgba(129, 213, 255, 0.24);
   color: #f4f9ff;
-  font-size: calc(12px * var(--font-scale));
+  font-size: calc(10px * var(--font-scale));
   font-weight: 900;
   text-align: center;
   line-height: 1.35;
@@ -3861,7 +3862,7 @@ button {
   position: relative;
   z-index: 1;
   color: rgba(230, 241, 255, 0.82);
-  font-size: calc(10px * var(--font-scale));
+  font-size: calc(9px * var(--font-scale));
   font-weight: 800;
   letter-spacing: 0.06em;
 }
@@ -3872,12 +3873,7 @@ button {
 }
 
 .result-comment-lead {
-  margin: 0 0 4px;
-  color: #f5f8ff;
-  font-size: calc(11px * var(--font-scale));
-  font-weight: 1000;
-  text-align: left;
-  letter-spacing: 0.06em;
+  display: none;
 }
 
 .karaoke-commentary {
@@ -3886,7 +3882,7 @@ button {
 
 .analysis-panel {
   min-height: 0;
-  padding: 10px;
+  padding: 8px;
   border-radius: 18px;
   background:
     linear-gradient(180deg, rgba(12, 35, 92, 0.94), rgba(5, 20, 56, 0.98));
@@ -3895,21 +3891,21 @@ button {
     inset 0 1px 0 rgba(255,255,255,0.08),
     0 12px 24px rgba(0,0,0,0.22);
   display: grid;
-  gap: 6px;
+  gap: 4px;
 }
 
 .analysis-panel-title {
   color: #f6fbff;
-  font-size: calc(13px * var(--font-scale));
+  font-size: calc(12px * var(--font-scale));
   font-weight: 1000;
   letter-spacing: 0.08em;
 }
 
 .analysis-panel-copy {
   color: rgba(233, 242, 255, 0.9);
-  font-size: calc(10px * var(--font-scale));
-  line-height: 1.3;
-  padding: 7px 8px;
+  font-size: calc(9px * var(--font-scale));
+  line-height: 1.2;
+  padding: 6px 8px;
   border-radius: 12px;
   background: rgba(255,255,255,0.07);
 }
@@ -3942,12 +3938,13 @@ button {
 .result-actions {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px;
+  gap: 6px;
+  margin-top: auto;
 }
 
 .result-actions #resultReviewBtn {
   grid-column: 1 / -1;
-  min-height: 64px;
+  min-height: 52px;
   background: linear-gradient(180deg, #ffd95d 0%, #ffb400 100%);
   color: #0f1626;
   border-color: rgba(255, 239, 171, 0.58);
@@ -3966,9 +3963,9 @@ button {
 
 .result-actions .primary-btn,
 .result-actions .secondary-btn {
-  min-height: 50px;
-  padding: 10px 8px;
-  font-size: calc(12px * var(--font-scale));
+  min-height: 42px;
+  padding: 8px 8px;
+  font-size: calc(11px * var(--font-scale));
   font-weight: 1000;
   border-radius: 22px;
   border-width: 2px;
@@ -4012,16 +4009,15 @@ button {
   .result-screen {
     padding-left: 10px;
     padding-right: 10px;
-    gap: 6px;
+    gap: 5px;
   }
 
   .result-main {
-    grid-template-rows: minmax(0, 1.08fr) minmax(0, 0.92fr);
-    gap: 6px;
+    gap: 5px;
   }
 
   .result-burst {
-    padding: 10px 10px 9px;
+    padding: 8px 9px 7px;
   }
 
   .result-stage-banner {
@@ -4031,75 +4027,12 @@ button {
   }
 
   .result-stage-banner-text {
-    font-size: calc(16px * var(--font-scale));
-  }
-
-  .result-rank-chip {
-    width: 100%;
-    padding: 10px 12px;
-  }
-
-  .result-rank-chip-text {
-    font-size: calc(23px * var(--font-scale));
-  }
-
-  .result-rank-chip-icon {
-    width: 36px;
-    height: 36px;
-    font-size: calc(22px * var(--font-scale));
-  }
-
-  .result-hero-score {
-    font-size: clamp(calc(82px * var(--font-scale)), calc(27vw * var(--font-scale)), calc(146px * var(--font-scale)));
-  }
-
-  .result-hero-unit {
-    margin-bottom: 8px;
-    font-size: calc(22px * var(--font-scale));
-  }
-
-  .analysis-panel {
-    padding: 8px;
-    gap: 5px;
-  }
-
-  .analysis-panel-title {
-    font-size: calc(12px * var(--font-scale));
-  }
-
-  .analysis-panel-copy {
-    padding: 8px 10px;
-    font-size: calc(10px * var(--font-scale));
-  }
-}
-
-@media (max-height: 760px) {
-  .result-screen {
-    padding-top: calc(env(safe-area-inset-top) + 8px);
-    padding-bottom: calc(env(safe-area-inset-bottom) + 8px);
-    gap: 5px;
-  }
-
-  .result-main {
-    grid-template-rows: minmax(0, 1.08fr) minmax(0, 0.92fr);
-    gap: 5px;
-  }
-
-  .result-burst {
-    padding: 8px 10px 8px;
-    gap: 4px;
-  }
-
-  .result-stage-banner {
-    padding: 7px 10px;
-  }
-
-  .result-stage-banner-text {
     font-size: calc(14px * var(--font-scale));
   }
 
   .result-rank-chip {
-    padding: 8px 12px;
+    width: 100%;
+    padding: 8px 10px;
   }
 
   .result-rank-chip-text {
@@ -4107,13 +4040,13 @@ button {
   }
 
   .result-rank-chip-icon {
-    width: 32px;
-    height: 32px;
+    width: 30px;
+    height: 30px;
     font-size: calc(18px * var(--font-scale));
   }
 
   .result-hero-score {
-    font-size: clamp(calc(68px * var(--font-scale)), calc(22vw * var(--font-scale)), calc(118px * var(--font-scale)));
+    font-size: clamp(calc(66px * var(--font-scale)), calc(21vw * var(--font-scale)), calc(120px * var(--font-scale)));
   }
 
   .result-hero-unit {
@@ -4121,9 +4054,62 @@ button {
     font-size: calc(18px * var(--font-scale));
   }
 
+  .analysis-panel-copy {
+    padding: 6px 8px;
+    font-size: calc(9px * var(--font-scale));
+  }
+}
+
+@media (max-height: 760px) {
+  .result-screen {
+    padding-top: calc(env(safe-area-inset-top) + 6px);
+    padding-bottom: calc(env(safe-area-inset-bottom) + 6px);
+    gap: 4px;
+  }
+
+  .result-main {
+    gap: 4px;
+  }
+
+  .result-burst {
+    padding: 7px 8px 6px;
+    gap: 3px;
+  }
+
+  .result-stage-banner {
+    padding: 7px 10px;
+  }
+
+  .result-stage-banner-text {
+    font-size: calc(12px * var(--font-scale));
+  }
+
+  .result-rank-chip {
+    padding: 7px 10px;
+  }
+
+  .result-rank-chip-text {
+    font-size: calc(17px * var(--font-scale));
+  }
+
+  .result-rank-chip-icon {
+    width: 26px;
+    height: 26px;
+    font-size: calc(15px * var(--font-scale));
+  }
+
+  .result-hero-score {
+    font-size: clamp(calc(58px * var(--font-scale)), calc(19vw * var(--font-scale)), calc(100px * var(--font-scale)));
+  }
+
+  .result-hero-unit {
+    margin-bottom: 4px;
+    font-size: calc(14px * var(--font-scale));
+  }
+
   .result-hero-comment {
-    padding: 6px 10px;
-    font-size: calc(10px * var(--font-scale));
+    padding: 5px 8px;
+    font-size: calc(9px * var(--font-scale));
   }
 
   .result-hero-meta,
@@ -4132,30 +4118,30 @@ button {
   }
 
   .analysis-panel {
-    padding: 8px;
-    gap: 5px;
+    padding: 6px;
+    gap: 4px;
   }
 
   .analysis-panel-title {
-    font-size: calc(12px * var(--font-scale));
+    font-size: calc(11px * var(--font-scale));
   }
 
   .analysis-panel-copy {
-    padding: 6px 8px;
-    font-size: calc(10px * var(--font-scale));
+    padding: 5px 7px;
+    font-size: calc(8px * var(--font-scale));
   }
 
   .result-actions {
-    gap: 6px;
+    gap: 5px;
   }
 
   .result-actions #resultReviewBtn {
-    min-height: 54px;
+    min-height: 46px;
   }
 
   .result-actions .primary-btn,
   .result-actions .secondary-btn {
-    min-height: 42px;
-    font-size: calc(10px * var(--font-scale));
+    min-height: 36px;
+    font-size: calc(9px * var(--font-scale));
   }
 }
