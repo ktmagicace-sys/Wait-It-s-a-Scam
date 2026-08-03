@@ -534,7 +534,7 @@ button {
   background:
     radial-gradient(circle at 20% 10%, rgba(66, 192, 255, 0.18), transparent 28%),
     linear-gradient(180deg, #07111c 0%, #0b1522 58%, #0d1828 100%);
-  overflow-y: auto;
+  overflow: hidden;
 }
 
 .countdown-screen {
@@ -585,45 +585,28 @@ button {
   grid-template-columns: 40px 1fr 40px;
   align-items: center;
   gap: 8px;
-  padding: calc(env(safe-area-inset-top) + 10px) 12px 10px;
-  position: sticky;
-  top: 0;
-  z-index: 2;
-  background: rgba(7, 14, 24, 0.92);
-  backdrop-filter: blur(12px);
-  border-bottom: 1px solid rgba(125, 156, 194, 0.14);
+  padding: calc(env(safe-area-inset-top) + 8px) 12px 8px;
+  background: rgba(7, 14, 24, 0.86);
+  border-bottom: 1px solid rgba(125, 156, 194, 0.12);
 }
 
 .tutorial-screen-title {
   text-align: center;
-  font-size: calc(20px * var(--font-scale));
+  font-size: calc(14px * var(--font-scale));
   font-weight: 900;
 }
 
 .tutorial-screen-body {
   flex: 1;
   display: grid;
-  align-content: start;
+  align-content: stretch;
   justify-items: center;
-  gap: 12px;
-  padding: 12px var(--page-gutter) calc(18px + env(safe-area-inset-bottom));
-}
-
-.tutorial-screen-hero {
-  width: min(100%, 220px);
-  aspect-ratio: 1 / 1;
-  border-radius: 26px;
-  display: grid;
-  place-items: center;
-  background:
-    radial-gradient(circle at 50% 36%, rgba(120, 224, 255, 0.26), transparent 32%),
-    linear-gradient(180deg, rgba(79, 127, 255, 0.16), rgba(79, 127, 255, 0.04));
-  border: 1px solid rgba(119, 180, 255, 0.18);
-  box-shadow: 0 22px 60px rgba(0, 0, 0, 0.28);
+  gap: 10px;
+  padding: 10px var(--page-gutter) calc(14px + env(safe-area-inset-bottom));
 }
 
 .tutorial-screen-mascot {
-  width: min(62vw, 192px);
+  width: 52px;
   max-width: 100%;
   height: auto;
 }
@@ -639,21 +622,56 @@ button {
 }
 
 .tutorial-screen-card {
-  width: min(100%, 560px);
+  width: min(100%, 430px);
   display: grid;
-  gap: 6px;
-  padding: 14px;
-  border-radius: 24px;
+  gap: 8px;
+  padding: 12px;
+  border-radius: 22px;
+  align-content: start;
+}
+
+.tutorial-card-top {
+  display: grid;
+  grid-template-columns: 52px minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+}
+
+.tutorial-card-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 16px;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(180deg, rgba(62, 135, 255, 0.18), rgba(62, 135, 255, 0.04));
+  overflow: hidden;
+}
+
+.tutorial-card-heading {
+  min-width: 0;
+  display: grid;
+  gap: 4px;
+}
+
+.tutorial-action-banner {
+  padding: 8px 10px;
+  border-radius: 14px;
+  background: linear-gradient(180deg, rgba(92, 205, 255, 0.14), rgba(92, 205, 255, 0.05));
+  border: 1px solid rgba(111, 196, 255, 0.24);
+  color: #eef8ff;
+  font-size: calc(10px * var(--font-scale));
+  line-height: 1.3;
+  font-weight: 800;
 }
 
 .tutorial-screen-preview {
-  margin-top: 2px;
+  margin-top: 0;
 }
 
 .tutorial-mini-screen {
   position: relative;
-  min-height: 208px;
-  border-radius: 20px;
+  min-height: 156px;
+  border-radius: 18px;
   overflow: hidden;
   background: linear-gradient(180deg, #08111b 0%, #101a29 100%);
   border: 1px solid rgba(134, 171, 219, 0.16);
@@ -661,18 +679,18 @@ button {
 }
 
 .tutorial-mini-screen.menu {
-  padding: 11px;
-}
-
-.tutorial-mini-screen.game {
   padding: 10px;
 }
 
-.tutorial-mini-bar {
+.tutorial-mini-screen.game {
+  padding: 9px;
+}
+
+.tutorial-mini-bar,
+.tutorial-mini-guide {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 10px;
+  gap: 6px;
 }
 
 .tutorial-mini-pill,
@@ -684,27 +702,47 @@ button {
 
 .tutorial-mini-pill {
   width: 96px;
-  height: 28px;
+  height: 22px;
 }
 
 .tutorial-mini-icon {
-  width: 28px;
-  height: 28px;
+  width: 22px;
+  height: 22px;
+}
+
+.tutorial-mini-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 7px;
+  border-radius: 999px;
+  background: rgba(116, 213, 255, 0.14);
+  color: #9fe9ff;
+  font-size: calc(8px * var(--font-scale));
+  font-weight: 800;
+}
+
+.tutorial-mini-tag.danger {
+  background: rgba(255, 122, 145, 0.14);
+  color: #ffb3c0;
 }
 
 .tutorial-mini-hero {
-  margin-top: 10px;
-  height: 96px;
-  border-radius: 18px;
+  margin-top: 8px;
+  height: 72px;
+  border-radius: 16px;
   background:
     radial-gradient(circle at 72% 18%, rgba(80, 184, 255, 0.24), transparent 24%),
     linear-gradient(180deg, rgba(86, 133, 255, 0.14), rgba(86, 133, 255, 0.04)),
     #0d1724;
 }
 
+.tutorial-mini-hero.compact {
+  height: 52px;
+}
+
 .tutorial-mini-button {
   margin-top: 8px;
-  height: 38px;
+  height: 30px;
   border-radius: 999px;
   background: linear-gradient(90deg, #66d7ff, #4f7fff);
 }
@@ -713,20 +751,32 @@ button {
   margin-top: 8px;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 8px;
+  gap: 6px;
+}
+
+.tutorial-mini-grid.compact {
+  margin-top: 6px;
+}
+
+.tutorial-mini-grid.stack {
+  grid-template-columns: 1fr;
 }
 
 .tutorial-mini-card {
-  height: 40px;
-  border-radius: 14px;
+  height: 28px;
+  border-radius: 12px;
   background: rgba(255, 255, 255, 0.06);
+}
+
+.tutorial-mini-card.tall {
+  height: 44px;
 }
 
 .tutorial-hotspot {
   position: absolute;
   border: 2px solid #80dbff;
-  border-radius: 18px;
-  box-shadow: 0 0 0 999px rgba(1, 6, 12, 0.16);
+  border-radius: 14px;
+  box-shadow: 0 0 0 999px rgba(1, 6, 12, 0.12);
 }
 
 .tutorial-hotspot.red {
@@ -735,13 +785,13 @@ button {
 
 .tutorial-callout {
   position: absolute;
-  max-width: 150px;
-  padding: 6px 8px;
-  border-radius: 12px;
+  max-width: 136px;
+  padding: 5px 7px;
+  border-radius: 10px;
   background: rgba(8, 18, 29, 0.96);
   border: 1px solid rgba(128, 219, 255, 0.34);
   color: #eef6ff;
-  font-size: calc(10px * var(--font-scale));
+  font-size: calc(8px * var(--font-scale));
   line-height: 1.3;
   box-shadow: 0 10px 22px rgba(0, 0, 0, 0.22);
 }
@@ -753,46 +803,46 @@ button {
 .tutorial-callout strong {
   display: block;
   margin-bottom: 2px;
-  font-size: calc(11px * var(--font-scale));
+  font-size: calc(9px * var(--font-scale));
 }
 
 .tutorial-mini-topbar {
   display: grid;
-  grid-template-columns: 24px 28px 1fr 66px;
+  grid-template-columns: 20px 24px 1fr 54px;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
 }
 
 .tutorial-mini-avatar {
-  width: 28px;
-  height: 28px;
+  width: 24px;
+  height: 24px;
   border-radius: 999px;
   background: #52a3ff;
 }
 
 .tutorial-mini-name {
-  width: 104px;
-  height: 12px;
+  width: 88px;
+  height: 10px;
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.12);
 }
 
 .tutorial-mini-score {
-  height: 28px;
-  border-radius: 14px;
+  height: 22px;
+  border-radius: 12px;
   background: rgba(255, 255, 255, 0.08);
 }
 
 .tutorial-mini-thread {
-  margin-top: 10px;
+  margin-top: 8px;
   display: grid;
-  gap: 6px;
+  gap: 5px;
 }
 
 .tutorial-mini-bubble {
   max-width: 78%;
-  min-height: 34px;
-  border-radius: 14px;
+  min-height: 24px;
+  border-radius: 12px;
   background: #253341;
 }
 
@@ -802,14 +852,14 @@ button {
 }
 
 .tutorial-mini-actions {
-  margin-top: 10px;
+  margin-top: 8px;
   display: grid;
-  gap: 6px;
+  gap: 5px;
 }
 
 .tutorial-mini-danger {
-  height: 34px;
-  border-radius: 14px;
+  height: 28px;
+  border-radius: 12px;
   background: linear-gradient(180deg, #ff6984, #ff4d67);
 }
 
@@ -820,17 +870,17 @@ button {
 }
 
 .tutorial-mini-choice {
-  height: 34px;
-  border-radius: 12px;
+  height: 28px;
+  border-radius: 10px;
   background: rgba(255, 255, 255, 0.08);
 }
 
 .tutorial-mini-bubble.textual {
-  padding: 10px;
+  padding: 7px 8px;
   height: auto;
   color: #eef6ff;
-  font-size: calc(10px * var(--font-scale));
-  line-height: 1.35;
+  font-size: calc(8px * var(--font-scale));
+  line-height: 1.3;
 }
 
 .tutorial-mini-bubble.textual .alert {
@@ -846,24 +896,24 @@ button {
 .tutorial-screen-actions {
   display: flex;
   justify-content: flex-end;
-  margin-top: 2px;
+  margin-top: 0;
 }
 
 .tutorial-practice-panel {
   flex: none;
   display: grid;
-  grid-template-columns: 54px minmax(0, 1fr);
+  grid-template-columns: 48px minmax(0, 1fr);
   align-items: start;
-  gap: 10px;
-  margin: 10px 12px 0;
-  padding: 12px;
-  border-radius: 22px;
+  gap: 8px;
+  margin: 8px 10px 0;
+  padding: 10px;
+  border-radius: 18px;
 }
 
 .tutorial-practice-icon {
-  width: 54px;
-  height: 54px;
-  border-radius: 16px;
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
   display: grid;
   place-items: center;
   background: linear-gradient(180deg, rgba(62, 135, 255, 0.18), rgba(62, 135, 255, 0.04));
@@ -871,7 +921,7 @@ button {
 }
 
 .tutorial-practice-icon img {
-  width: 64px;
+  width: 58px;
   height: auto;
   transform: translateY(6px);
 }
@@ -879,32 +929,32 @@ button {
 .tutorial-practice-copy {
   min-width: 0;
   display: grid;
-  gap: 6px;
+  gap: 5px;
 }
 
 .tutorial-step-badge {
   display: inline-flex;
   width: fit-content;
-  padding: 5px 9px;
+  padding: 4px 8px;
   border-radius: 999px;
   background: rgba(89, 197, 255, 0.18);
   color: #94e4ff;
-  font-size: calc(10px * var(--font-scale));
+  font-size: calc(8px * var(--font-scale));
   font-weight: 900;
   letter-spacing: 0.08em;
 }
 
 .tutorial-title {
   margin: 0;
-  font-size: calc(16px * var(--font-scale));
-  line-height: 1.25;
+  font-size: calc(13px * var(--font-scale));
+  line-height: 1.2;
 }
 
 .tutorial-message,
 .tutorial-hint {
   margin: 0;
-  font-size: calc(13px * var(--font-scale));
-  line-height: 1.5;
+  font-size: calc(10px * var(--font-scale));
+  line-height: 1.35;
 }
 
 .tutorial-message {
@@ -916,42 +966,42 @@ button {
 }
 
 .tutorial-next-btn {
-  min-width: 120px;
-  padding-inline: 16px;
+  min-width: 104px;
+  padding-inline: 14px;
 }
 
 @media (max-height: 760px) {
   .tutorial-screen-body {
-    padding-top: 10px;
+    padding-top: 8px;
   }
 
-  .tutorial-screen-hero {
-    width: min(100%, 176px);
-    border-radius: 20px;
+  .tutorial-screen-card {
+    gap: 7px;
+    padding: 11px;
   }
 
   .tutorial-screen-mascot {
-    width: min(54vw, 148px);
+    width: 46px;
   }
 
   .tutorial-mini-screen {
-    min-height: 188px;
+    min-height: 142px;
   }
 
   .tutorial-practice-panel {
-    grid-template-columns: 48px minmax(0, 1fr);
-    margin-top: 8px;
-    padding: 10px;
+    grid-template-columns: 42px minmax(0, 1fr);
+    margin-top: 6px;
+    padding: 9px;
   }
 
   .tutorial-practice-icon {
-    width: 48px;
-    height: 48px;
-    border-radius: 14px;
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
   }
 
   .tutorial-practice-icon img {
-    width: 56px;
+    width: 52px;
   }
 }
 

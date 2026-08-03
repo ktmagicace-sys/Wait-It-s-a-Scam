@@ -106,12 +106,17 @@
         <div class="set-select-topbar-spacer" aria-hidden="true"></div>
       </header>
       <div class="tutorial-screen-body">
-        <div class="tutorial-screen-hero" aria-hidden="true">
-          <img class="tutorial-screen-mascot" src="assets/tutorial-mascot-speaking.png" alt="" />
-        </div>
         <section class="tutorial-screen-card" aria-live="polite" aria-label="チュートリアル案内">
-          <div id="tutorialScreenStepBadge" class="tutorial-step-badge">STEP 1</div>
-          <h2 id="tutorialScreenTitle" class="tutorial-title">チュートリアル</h2>
+          <div class="tutorial-card-top">
+            <div class="tutorial-card-icon" aria-hidden="true">
+              <img class="tutorial-screen-mascot" src="assets/tutorial-mascot-speaking.png" alt="" />
+            </div>
+            <div class="tutorial-card-heading">
+              <div id="tutorialScreenStepBadge" class="tutorial-step-badge">STEP 1</div>
+              <h2 id="tutorialScreenTitle" class="tutorial-title">チュートリアル</h2>
+            </div>
+          </div>
+          <div id="tutorialScreenAction" class="tutorial-action-banner"></div>
           <p id="tutorialScreenMessage" class="tutorial-message"></p>
           <p id="tutorialScreenHint" class="tutorial-hint"></p>
           <div id="tutorialScreenPreview" class="tutorial-screen-preview" aria-hidden="true"></div>
@@ -231,6 +236,7 @@
         <div class="tutorial-practice-copy">
           <div id="tutorialPracticeStepBadge" class="tutorial-step-badge">STEP</div>
           <h2 id="tutorialPracticeTitle" class="tutorial-title">練習</h2>
+          <div id="tutorialPracticeAction" class="tutorial-action-banner"></div>
           <p id="tutorialPracticeMessage" class="tutorial-message"></p>
           <p id="tutorialPracticeHint" class="tutorial-hint"></p>
         </div>

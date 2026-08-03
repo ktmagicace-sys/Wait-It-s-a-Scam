@@ -445,9 +445,10 @@ const TUTORIAL_STEPS = [
     id: "welcome",
     screen: "tutorial",
     badge: "STEP 1",
-    title: "ゲームの目的",
-    message: "やあ。僕は「サギカモ」だよ！サギでも，カモでもなく，カラスだよ．まちがえないでね！このゲームは、DMが詐欺か普通の連絡かを見分ける練習だよ。",
-    hint: "危険なら止める。普通なら疑いすぎない。これが大事。",
+    title: "やることは2つだけ",
+    actionLabel: "3択で返す / 危ないなら赤で止める",
+    message: "このゲームでは、DMを読みながら「返す」か「止める」かを決めます。",
+    hint: "迷ったら、まずはこの2つの操作だけ覚えれば十分です。",
     action: "next",
     buttonLabel: "つぎへ"
   },
@@ -455,9 +456,10 @@ const TUTORIAL_STEPS = [
     id: "controls",
     screen: "tutorial",
     badge: "STEP 2",
-    title: "ゲームの操作方法",
-    message: "下の3択は返事を続ける操作。赤い『あ、詐欺ね』は、その場で止める操作だよ。",
-    hint: "最後まで読まなくていい。危ないと思った時点で止めよう。",
+    title: "止めどきを見る",
+    actionLabel: "最後まで読まずに止めてよい",
+    message: "急がせる、お金を出させる、外のサイトやATMへ誘導する。こうした流れが見えたら止めどきです。",
+    hint: "危険だと思った時点で赤いボタンを押して大丈夫です。",
     action: "next",
     buttonLabel: "つぎへ"
   },
@@ -465,9 +467,10 @@ const TUTORIAL_STEPS = [
     id: "thinking",
     screen: "tutorial",
     badge: "STEP 3",
-    title: "考え方のコツ",
-    message: "見るポイントは5つ。急がせる、お金を求める、秘密にさせる、外部へ誘導する、認証コードや個人情報を聞く。",
-    hint: "公式確認を勧め、機密情報をDMで求めない相手は安全寄り。",
+    title: "疑いすぎもNG",
+    actionLabel: "普通のDMには落ち着いて返す",
+    message: "本物の連絡も混ざります。相手が公式確認を勧めたり、DMで個人情報を求めないなら、すぐ切らずに返してOKです。",
+    hint: "詐欺だけ止めて、普通の連絡は切りすぎないのがコツです。",
     action: "next",
     buttonLabel: "練習へ"
   },
@@ -475,9 +478,10 @@ const TUTORIAL_STEPS = [
     id: "start-practice",
     screen: "tutorial",
     badge: "STEP 4",
-    title: "実際にやってみよう",
-    message: "ここからは2件だけ、一緒に練習しよう。",
-    hint: "まず安全なDM、その次に詐欺DMを止めるよ。",
+    title: "2件だけ練習する",
+    actionLabel: "1件目は返す / 2件目は止める",
+    message: "まずは普通のDMに返し、そのあと危ないDMを途中で止めます。",
+    hint: "いま見るべきことだけ上に短く出します。",
     action: "start",
     buttonLabel: "練習スタート"
   },
@@ -485,27 +489,30 @@ const TUTORIAL_STEPS = [
     id: "safe-practice",
     screen: "game",
     badge: "STEP 5",
-    title: "まずは普通の連絡",
-    message: "相手のDMを読んで、下の3択から1つ返してみて。",
-    hint: "今回は赤いボタンを押さず、返事を選ぼう。",
+    title: "普通のDMに返す",
+    actionLabel: "下の3択から1つ選ぶ",
+    message: "今回は危険な流れではありません。赤ではなく、返事を1つ選んで進めます。",
+    hint: "やることは「返す」です。",
     action: "wait-choice"
   },
   {
     id: "fraud-read",
     screen: "game",
     badge: "STEP 6",
-    title: "怪しい返事を避ける",
-    message: "次は怪しいDM。すぐ従わず、確認する返事を選んでみて。",
-    hint: "前のめりに従う返事は危険になりやすいよ。",
+    title: "怪しいDMを読む",
+    actionLabel: "すぐ従わず、確認する返事を選ぶ",
+    message: "次は危ない流れのあるDMです。すぐ従う返事ではなく、確認する返事を選びます。",
+    hint: "やることは「様子を見る返し方を選ぶ」です。",
     action: "wait-choice"
   },
   {
     id: "fraud-stop",
     screen: "game",
     badge: "STEP 7",
-    title: "詐欺だと思ったら止める",
-    message: "ATMへ誘導し始めた。もう十分危険だから止めよう。",
-    hint: "最後まで読むより、危ない流れの前で切るほうが大事。",
+    title: "ここで止める",
+    actionLabel: "赤い『あ、詐欺ね』を押す",
+    message: "ATMへ誘導し始めました。ここまでで十分危険なので、もう返さずに止めます。",
+    hint: "やることは「赤いボタンを押す」です。",
     action: "wait-fraud"
   },
   {
@@ -513,8 +520,9 @@ const TUTORIAL_STEPS = [
     screen: "tutorial",
     badge: "COMPLETE",
     title: "チュートリアル完了",
-    message: "これで基本はOK。迷ったら危険サインを思い出してね。",
-    hint: "あとは通常プレイで練習できるよ。",
+    actionLabel: "通常プレイで練習できる",
+    message: "これで始める準備はできました。返すか止めるかを、その場で決めていけば大丈夫です。",
+    hint: "迷ったら「急がせる・外へ誘導する・個人情報を求める」を思い出してください。",
     action: "finish",
     buttonLabel: "メニューへ"
   }
@@ -533,24 +541,20 @@ function tutorialPreviewMarkup(stepId) {
   if (stepId === "welcome") {
     return `
       <div class="tutorial-mini-screen menu">
-        <div class="tutorial-mini-bar">
-          <div class="tutorial-mini-pill"></div>
-          <div class="tutorial-mini-icon"></div>
+        <div class="tutorial-mini-guide">
+          <span class="tutorial-mini-tag">返す</span>
+          <span class="tutorial-mini-tag danger">止める</span>
         </div>
-        <div class="tutorial-mini-hero"></div>
+        <div class="tutorial-mini-hero compact"></div>
         <div class="tutorial-mini-button"></div>
-        <div class="tutorial-mini-grid">
+        <div class="tutorial-mini-grid compact">
           <div class="tutorial-mini-card"></div>
           <div class="tutorial-mini-card"></div>
         </div>
-        <div class="tutorial-hotspot" style="left: 13px; right: 13px; top: 180px; height: 50px;"></div>
-        <div class="tutorial-callout" style="left: 18px; top: 126px;">
-          <strong>ここからプレイ</strong>
-          実戦ではこのボタンからゲームを始めるよ。
-        </div>
-        <div class="tutorial-callout" style="right: 18px; bottom: 18px;">
-          <strong>目的</strong>
-          進んで読むか、止めるかを自分で判断するゲームだよ。
+        <div class="tutorial-hotspot" style="left: 12px; right: 12px; top: 106px; height: 38px;"></div>
+        <div class="tutorial-callout" style="right: 14px; top: 58px;">
+          <strong>基本</strong>
+          返すか止めるかを選ぶ。
         </div>
       </div>
     `;
@@ -578,15 +582,10 @@ function tutorialPreviewMarkup(stepId) {
             <div class="tutorial-mini-choice"></div>
           </div>
         </div>
-        <div class="tutorial-hotspot red" style="left: 12px; right: 12px; bottom: 62px; height: 46px;"></div>
-        <div class="tutorial-hotspot" style="left: 12px; right: 12px; bottom: 10px; height: 46px;"></div>
-        <div class="tutorial-callout red" style="left: 16px; top: 126px;">
+        <div class="tutorial-hotspot red" style="left: 10px; right: 10px; bottom: 52px; height: 36px;"></div>
+        <div class="tutorial-callout red" style="left: 12px; top: 108px;">
           <strong>赤ボタン</strong>
-          詐欺だと思った時点でここを押して止める。
-        </div>
-        <div class="tutorial-callout" style="right: 16px; top: 156px;">
-          <strong>3択の返事</strong>
-          続きを見るときは下の返事を選ぶ。
+          危ないと思ったらここで止める。
         </div>
       </div>
     `;
@@ -614,13 +613,9 @@ function tutorialPreviewMarkup(stepId) {
             このDMで<span class="safe">暗証番号は求めません</span>。
           </div>
         </div>
-        <div class="tutorial-callout red" style="left: 16px; top: 70px;">
-          <strong>危険サイン</strong>
-          急がせる・ATM誘導・指示通り強調はかなり怪しい。
-        </div>
-        <div class="tutorial-callout" style="right: 16px; bottom: 18px;">
-          <strong>安全寄りのサイン</strong>
-          公式確認を促し、機密情報をDMで求めない相手は落ち着いて見てよい。
+        <div class="tutorial-callout" style="right: 14px; bottom: 14px; max-width: 164px;">
+          <strong>返してよい例</strong>
+          公式確認を勧め、DMで秘密情報を求めない。
         </div>
       </div>
     `;
@@ -629,18 +624,18 @@ function tutorialPreviewMarkup(stepId) {
   if (stepId === "start-practice") {
     return `
       <div class="tutorial-mini-screen menu">
-        <div class="tutorial-mini-bar">
-          <div class="tutorial-mini-pill"></div>
-          <div class="tutorial-mini-icon"></div>
+        <div class="tutorial-mini-guide">
+          <span class="tutorial-mini-tag">1件目 返す</span>
+          <span class="tutorial-mini-tag danger">2件目 止める</span>
         </div>
-        <div class="tutorial-mini-hero"></div>
-        <div class="tutorial-mini-grid" style="grid-template-columns:1fr;">
-          <div class="tutorial-mini-card" style="height:72px;"></div>
-          <div class="tutorial-mini-card" style="height:72px;"></div>
+        <div class="tutorial-mini-hero compact"></div>
+        <div class="tutorial-mini-grid stack">
+          <div class="tutorial-mini-card tall"></div>
+          <div class="tutorial-mini-card tall"></div>
         </div>
-        <div class="tutorial-callout" style="left: 18px; bottom: 18px;">
-          <strong>これから実践</strong>
-          まず安全なDM、その次に詐欺DMを止める練習をするよ。
+        <div class="tutorial-callout" style="left: 14px; bottom: 14px;">
+          <strong>練習</strong>
+          次の2件だけ触ればOK。
         </div>
       </div>
     `;
@@ -668,6 +663,7 @@ function syncTutorialCoach() {
   if (onTutorialScreen) {
     $("tutorialScreenStepBadge").textContent = step.badge;
     $("tutorialScreenTitle").textContent = step.title;
+    $("tutorialScreenAction").textContent = step.actionLabel || "";
     $("tutorialScreenMessage").textContent = step.message;
     $("tutorialScreenHint").textContent = step.hint;
     $("tutorialScreenPreview").innerHTML = tutorialPreviewMarkup(step.id);
@@ -683,6 +679,7 @@ function syncTutorialCoach() {
 
   $("tutorialPracticeStepBadge").textContent = step.badge;
   $("tutorialPracticeTitle").textContent = step.title;
+  $("tutorialPracticeAction").textContent = step.actionLabel || "";
   $("tutorialPracticeMessage").textContent = step.message;
   $("tutorialPracticeHint").textContent = step.hint;
 }
