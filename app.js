@@ -2484,13 +2484,7 @@ function animateResultNumbers(summary) {
   stopResultAnimation();
 
   const scoreEl = $("resultHeroScoreValue");
-  const statTargets = [
-    { el: $("resultCardCorrect"), value: summary.correct },
-    { el: $("resultCardWarn"), value: summary.warn },
-    { el: $("resultCardBad"), value: summary.bad }
-  ];
-
-  if (!scoreEl || statTargets.some((item) => !item.el)) return;
+  if (!scoreEl) return;
 
   const startAt = performance.now();
   const duration = 1200;
@@ -2502,9 +2496,6 @@ function animateResultNumbers(summary) {
     const scoreValue = Math.round(scoreStart + (summary.finalScore - scoreStart) * eased);
 
     scoreEl.textContent = String(scoreValue);
-    statTargets.forEach(({ el, value }) => {
-      el.textContent = String(Math.round(value * eased));
-    });
 
     if (progress < 1) {
       state.resultAnimationFrame = window.requestAnimationFrame(tick);
@@ -2512,17 +2503,12 @@ function animateResultNumbers(summary) {
     }
 
     scoreEl.textContent = String(summary.finalScore);
-    statTargets.forEach(({ el, value }) => {
-      el.textContent = String(value);
-      el.closest(".score-card")?.classList.add("result-pop");
-    });
     $("resultBurst")?.classList.add("result-finished");
     playSfx("good");
     state.resultAnimationFrame = null;
   };
 
   $("resultBurst")?.classList.remove("result-finished");
-  statTargets.forEach(({ el }) => el.closest(".score-card")?.classList.remove("result-pop"));
   state.resultAnimationFrame = window.requestAnimationFrame(tick);
 }
 
@@ -2559,27 +2545,18 @@ function renderResultsFromSession(session) {
     </div>
   `;
 
-  const cards = [
-    [summary.correct, "正解", "good", "見抜けた", "resultCardCorrect"],
-    [summary.warn, "注意", "warn", "慎重さが必要", "resultCardWarn"],
-    [summary.bad, "危険", "bad", "振り返り優先", "resultCardBad"]
-  ];
-
-  $("scoreCards").innerHTML = cards.map(([, label, tone, sub, id]) => `
-    <div class="score-card ${tone}">
-      <div class="score-card-noise" aria-hidden="true"></div>
-      <div id="${id}" class="num">0</div>
-      <div class="label">${label}</div>
-      <div class="score-card-sub">${sub}</div>
-    </div>
-  `).join("");
-
   $("resultCommentLead").textContent = comment.lead;
-  $("resultCommentBody").innerHTML = comment.lines.map((line, index) => `
-    <div class="karaoke-line ${index === 0 ? "active" : ""}">
-      <span>${line}</span>
+  $("resultCommentBody").innerHTML = `
+    <div class="analysis-panel">
+      <div class="analysis-panel-title">分析レポート</div>
+      <div class="analysis-panel-copy">${comment.summary}</div>
+      ${comment.lines.map((line, index) => `
+        <div class="karaoke-line ${index === 0 ? "active" : ""}">
+          <span>${line}</span>
+        </div>
+      `).join("")}
     </div>
-  `).join("");
+  `;
   $("timingReviewSummary").textContent = timingSummary.summaryText;
   renderReviewPicker(timingLogs);
   $("resultReviewBtn").textContent = timingLogs.length
@@ -2638,7 +2615,10 @@ function buildResultCommentary(summary, logs, rank, reviewSummary) {
 
   return {
     hero: lines[0],
-    lead: topTag ? `${topTag}が今回の注意ポイント` : "今回のプレイから自動生成",
+    summary: topTag
+      ? `${topTag}に引っ張られた場面があります。次回はそこを最優先で確認してください。`
+      : "大きな弱点は見えませんでした。この調子で続けてください。",
+    lead: topTag ? `注意ポイント: ${topTag}` : "分析結果",
     lines
   };
 }
