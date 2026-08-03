@@ -2541,7 +2541,7 @@ function renderResultsFromSession(session) {
         <div class="result-hero-unit">PT</div>
       </div>
       <div class="result-hero-comment">${comment.hero}</div>
-      <div class="result-hero-meta">${normalizedSession.playSetName} / ${summary.correct}問正解 / ${summary.totalSec}秒</div>
+      <div class="result-hero-meta">${normalizedSession.playSetName} / ${summary.totalSec}秒</div>
     </div>
   `;
 
@@ -2550,11 +2550,6 @@ function renderResultsFromSession(session) {
     <div class="analysis-panel">
       <div class="analysis-panel-title">分析レポート</div>
       <div class="analysis-panel-copy">${comment.summary}</div>
-      ${comment.lines.map((line, index) => `
-        <div class="karaoke-line ${index === 0 ? "active" : ""}">
-          <span>${line}</span>
-        </div>
-      `).join("")}
     </div>
   `;
   $("timingReviewSummary").textContent = timingSummary.summaryText;
@@ -2616,10 +2611,9 @@ function buildResultCommentary(summary, logs, rank, reviewSummary) {
   return {
     hero: lines[0],
     summary: topTag
-      ? `${topTag}に引っ張られた場面があります。次回はそこを最優先で確認してください。`
-      : "大きな弱点は見えませんでした。この調子で続けてください。",
+      ? `${topTag}が見えたら即警戒。`
+      : "この調子で続ければ安定します。",
     lead: topTag ? `注意ポイント: ${topTag}` : "分析結果",
-    lines
   };
 }
 
