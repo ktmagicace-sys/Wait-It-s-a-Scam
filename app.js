@@ -14,10 +14,14 @@ const state = {
   resultSession: null,
   startedAt: null,
   scenarioStartedAt: null,
+  turnStartedAt: null,
+  scenarioChoicePoints: 0,
   scoreTicker: null,
   locked: false,
   selectedReviewIndex: 0,
   lastLiveScore: null,
+  lastScoreDelta: 0,
+  scoreDeltaUntil: 0,
   reviewLogs: [],
   resultReviewOpen: false,
   resultAnimationFrame: null,
@@ -134,6 +138,8 @@ const FEEDBACK_COPY = {
 const BGM_STEP_MS = 170;
 const BGM_BAR_STEPS = 8;
 const SCORE_PER_SCENARIO = 100;
+const TURN_TIME_SECONDS = 25;
+const MAX_CHOICE_POINTS = 15;
 const MAX_VOLUME_MULTIPLIER = 2;
 const SCORE_RULES = {
   content: {
@@ -1048,8 +1054,19 @@ function speedPoints(elapsedMs, reachedTurn = 1) {
   return 0;
 }
 
-function scenarioScoreBreakdown(result, elapsedMs, reachedTurn) {
-  const contentPoints = SCORE_RULES.content[result] || 0;
+function scenarioScoreBreakdown(result, elapsedMs, reachedTurn, awardedChoicePoints = null) {
+  const choicePoints = Number.isFinite(awardedChoicePoints)
+    ? Math.max(0, Math.min(MAX_CHOICE_POINTS, awardedChoicePoints))
+    : null;
+  const contentBase = {
+    correct_detected: 40,
+    correct_safe: 40,
+    early_detected: 30,
+    late_detected: 30
+  }[result] || 0;
+  const contentPoints = choicePoints === null
+    ? SCORE_RULES.content[result] || 0
+    : contentBase + (contentBase > 0 ? choicePoints : 0);
   const stagePoints = SCORE_RULES.stage[result] || 0;
   // 誤検知・見逃し・被害では、早さだけで得点できない。
   const speedScore = contentPoints > 0 ? speedPoints(elapsedMs, reachedTurn) : 0;
@@ -1062,14 +1079,31 @@ function scenarioScoreBreakdown(result, elapsedMs, reachedTurn) {
 }
 
 function currentLiveScore() {
-  const lostPoints = state.logs.reduce((sum, log) => {
-    const breakdown = scenarioScoreBreakdown(log.result, log.elapsedMs, log.reachedTurn);
-    return sum + (SCORE_PER_SCENARIO - breakdown.scenarioScore);
+  const confirmed = state.logs.reduce((sum, log) => {
+    const breakdown = scenarioScoreBreakdown(log.result, log.elapsedMs, log.reachedTurn, log.choicePoints);
+    return sum + breakdown.scenarioScore;
   }, 0);
-  const currentSpeedLoss = state.scenarioStartedAt && !state.locked
-    ? 15 - speedPoints(nowMs() - state.scenarioStartedAt, state.turnIndex + 1)
-    : 0;
-  return Math.max(0, baseScoreForRun() - lostPoints - currentSpeedLoss);
+  const hasOpenScenario = state.logs.length === state.currentIndex;
+  return confirmed + (hasOpenScenario ? state.scenarioChoicePoints : 0);
+}
+
+function remainingTurnSeconds() {
+  if (!state.turnStartedAt) return TURN_TIME_SECONDS;
+  return Math.max(0, Math.ceil(TURN_TIME_SECONDS - ((nowMs() - state.turnStartedAt) / 1000)));
+}
+
+function updateTurnTimer() {
+  const remaining = remainingTurnSeconds();
+  const ratio = remaining / TURN_TIME_SECONDS;
+  const timer = $("turnTimer");
+  const value = $("turnTimeValue");
+  const fill = $("turnTimeFill");
+  if (!timer || !value || !fill) return;
+
+  value.textContent = String(remaining);
+  fill.style.width = `${Math.round(ratio * 100)}%`;
+  timer.classList.remove("tone-safe", "tone-warn", "tone-danger");
+  timer.classList.add(remaining > 15 ? "tone-safe" : remaining > 7 ? "tone-warn" : "tone-danger");
 }
 
 function updateScorePill() {
@@ -1078,16 +1112,21 @@ function updateScorePill() {
   const ratio = score / maxScore;
   const prevScore = state.lastLiveScore ?? score;
   const delta = score - prevScore;
+  if (delta !== 0) {
+    state.lastScoreDelta = delta;
+    state.scoreDeltaUntil = nowMs() + 1100;
+  }
+  const visibleDelta = delta || (nowMs() < state.scoreDeltaUntil ? state.lastScoreDelta : 0);
   const scorePill = $("scorePill");
   const scoreText = $("scenarioCount");
   const scoreDelta = $("scoreDelta");
   const batteryLevel = $("batteryLevel");
 
   scoreText.textContent = score;
-  scoreDelta.textContent = delta > 0 ? `+${delta}` : delta < 0 ? `${delta}` : "+0";
-  scoreDelta.classList.toggle("active", delta !== 0);
-  scorePill.classList.toggle("delta-up", delta > 0);
-  scorePill.classList.toggle("delta-down", delta < 0);
+  scoreDelta.textContent = visibleDelta > 0 ? `+${visibleDelta}` : visibleDelta < 0 ? `${visibleDelta}` : "+0";
+  scoreDelta.classList.toggle("active", visibleDelta !== 0);
+  scorePill.classList.toggle("delta-up", visibleDelta > 0);
+  scorePill.classList.toggle("delta-down", visibleDelta < 0);
   scorePill.classList.remove("tone-high", "tone-mid", "tone-low");
   scorePill.classList.add(ratio > 0.66 ? "tone-high" : ratio > 0.33 ? "tone-mid" : "tone-low");
   batteryLevel.style.width = `${Math.max(10, Math.round(ratio * 100))}%`;
@@ -1129,7 +1168,11 @@ function stopCountdownTimer() {
 function startScoreTicker() {
   stopScoreTicker();
   updateScorePill();
-  state.scoreTicker = window.setInterval(updateScorePill, 250);
+  updateTurnTimer();
+  state.scoreTicker = window.setInterval(() => {
+    updateScorePill();
+    updateTurnTimer();
+  }, 200);
 }
 
 function ensureAudioContext() {
@@ -1806,7 +1849,8 @@ function beginGameAfterCountdown(runToken) {
 
   state.startedAt = nowMs();
   state.scenarioStartedAt = nowMs();
-  state.lastLiveScore = baseScoreForRun();
+  state.turnStartedAt = nowMs();
+  state.lastLiveScore = 0;
   startBgm("game");
   playSfx("start");
   startScoreTicker();
@@ -1853,9 +1897,13 @@ function startGame(customScenarios = null, mode = "normal") {
   state.activeScenarios = scenarios;
   state.startedAt = null;
   state.scenarioStartedAt = null;
+  state.turnStartedAt = null;
+  state.scenarioChoicePoints = 0;
   state.locked = false;
   state.selectedReviewIndex = 0;
-  state.lastLiveScore = baseScoreForRun();
+  state.lastLiveScore = 0;
+  state.lastScoreDelta = 0;
+  state.scoreDeltaUntil = 0;
   if (state.scoreFxTimer) {
     window.clearTimeout(state.scoreFxTimer);
     state.scoreFxTimer = null;
@@ -2092,6 +2140,8 @@ function renderScenario() {
   const scenario = currentScenario();
   state.turnIndex = 0;
   state.scenarioStartedAt = nowMs();
+  state.turnStartedAt = nowMs();
+  state.scenarioChoicePoints = 0;
   state.locked = false;
   clearFeedback();
   syncTutorialStepForScenario();
@@ -2100,6 +2150,7 @@ function renderScenario() {
   $("chatStatus").textContent = scenario.handle;
   $("profileDot").style.background = scenario.color;
   updateScorePill();
+  updateTurnTimer();
 
   $("messageArea").innerHTML = "";
   addSystemNote("新しいDM");
@@ -2225,20 +2276,51 @@ function showTurnMessage() {
     return;
   }
   addMessage(turn.text, "them");
+  state.turnStartedAt = nowMs();
+  updateTurnTimer();
   playSfx("incoming");
   renderChoices(turn.choices);
 }
 
 function normalizeChoice(choice) {
   if (typeof choice === "string") {
-    return { label: choice, instantLose: false, detectFraud: false };
+    return { label: choice, instantLose: false, detectFraud: false, points: null };
   }
 
   return {
     label: choice.label,
     instantLose: Boolean(choice.instantLose),
-    detectFraud: Boolean(choice.detectFraud)
+    detectFraud: Boolean(choice.detectFraud),
+    points: Number.isFinite(choice.points) ? choice.points : null
   };
+}
+
+function choicePointsFor(scenario, choice, choiceIndex, selectedTurn) {
+  if (choice.instantLose) return 0;
+  if (choice.points !== null) return choice.points;
+  if (choice.detectFraud) {
+    if (selectedTurn < scenario.fraudDetectableTurn) return 2;
+    if (scenario.dangerTurn && selectedTurn >= scenario.dangerTurn) return 3;
+    return Math.max(5, MAX_CHOICE_POINTS - ((selectedTurn - 1) * 5));
+  }
+  if (!scenario.isFraud) return [4, 5, 4][choiceIndex] ?? 3;
+  return [0, 4, 5][choiceIndex] ?? 2;
+}
+
+function awardChoicePoints(points) {
+  const available = Math.max(0, MAX_CHOICE_POINTS - state.scenarioChoicePoints);
+  const awarded = Math.max(0, Math.min(available, Math.round(points)));
+  if (awarded <= 0) return 0;
+  state.scenarioChoicePoints += awarded;
+  updateScorePill();
+  return awarded;
+}
+
+function fraudButtonPoints(scenario, judgedTurn) {
+  if (!scenario.isFraud) return 0;
+  if (judgedTurn < scenario.fraudDetectableTurn) return 2;
+  if (scenario.dangerTurn && judgedTurn >= scenario.dangerTurn) return 3;
+  return Math.max(5, MAX_CHOICE_POINTS - ((judgedTurn - 1) * 5));
 }
 
 function renderChoices(choices) {
@@ -2263,11 +2345,12 @@ function chooseReply(choice, choiceIndex) {
 
   ensureAudioContext();
   state.actionCount += 1;
-  updateScorePill();
   addMessage(choice.label, "me");
   playSfx("choice");
   const scenario = currentScenario();
   const selectedTurn = state.turnIndex + 1;
+  const choiceAward = awardChoicePoints(choicePointsFor(scenario, choice, choiceIndex, selectedTurn));
+  if (choiceAward > 0) addSystemNote(`選択ボーナス +${choiceAward}pt`);
 
   // 危険行動に近い選択肢を簡易的に判定します。
   // 0番目の選択肢は、多くのシナリオで相手の誘導に乗る選択として作っています。
@@ -2327,13 +2410,14 @@ function pressFraudButton() {
   ensureAudioContext();
   state.locked = true;
   state.actionCount += 1;
-  updateScorePill();
   $("choices").innerHTML = "";
   setFraudButtonVisible(false);
   addMessage("あ，詐欺ね", "me");
   playSfx("fraud");
   const scenario = currentScenario();
   const judgedTurn = state.turnIndex + 1;
+  const choiceAward = awardChoicePoints(fraudButtonPoints(scenario, judgedTurn));
+  if (choiceAward > 0) addSystemNote(`判定ボーナス +${choiceAward}pt`);
   const runToken = state.runToken;
   setTimeout(() => {
     if (runToken !== state.runToken) return;
@@ -2380,7 +2464,8 @@ function finishScenario(actionType, detail) {
     }
   }
 
-  const scoreBreakdown = scenarioScoreBreakdown(result, elapsedMs, reachedTurn);
+  const scoreBeforeFinish = currentLiveScore();
+  const scoreBreakdown = scenarioScoreBreakdown(result, elapsedMs, reachedTurn, state.scenarioChoicePoints);
 
   state.logs.push({
     playSetId: currentPlaySet()?.id || null,
@@ -2394,6 +2479,7 @@ function finishScenario(actionType, detail) {
     result,
     statusLabel,
     actionType,
+    choicePoints: state.scenarioChoicePoints,
     ...scoreBreakdown,
     judgedTurn,
     reachedTurn,
@@ -2405,7 +2491,7 @@ function finishScenario(actionType, detail) {
   showFeedback(result);
   playSfx(feedbackSound(result));
   updateScorePill();
-  triggerScorePillFx(-(SCORE_PER_SCENARIO - scoreBreakdown.scenarioScore));
+  triggerScorePillFx(currentLiveScore() - scoreBeforeFinish);
   const runToken = state.runToken;
 
   setTimeout(() => {
@@ -2437,7 +2523,7 @@ function computeResults(logs, totalSec, actionCount) {
   const earlyDetected = logs.filter((log) => log.result === "early_detected").length;
   const lateDetected = logs.filter((log) => log.result === "late_detected").length;
   const baseScore = total * SCORE_PER_SCENARIO;
-  const breakdowns = logs.map((log) => scenarioScoreBreakdown(log.result, log.elapsedMs, log.reachedTurn));
+  const breakdowns = logs.map((log) => scenarioScoreBreakdown(log.result, log.elapsedMs, log.reachedTurn, log.choicePoints));
   const contentPoints = breakdowns.reduce((sum, item) => sum + item.contentPoints, 0);
   const stagePoints = breakdowns.reduce((sum, item) => sum + item.stagePoints, 0);
   const speedPointsTotal = breakdowns.reduce((sum, item) => sum + item.speedPoints, 0);
@@ -2790,7 +2876,7 @@ function renderReviewPicker(logs) {
 }
 
 function renderReviewDetail(log) {
-  const score = scenarioScoreBreakdown(log.result, log.elapsedMs, log.reachedTurn);
+  const score = scenarioScoreBreakdown(log.result, log.elapsedMs, log.reachedTurn, log.choicePoints);
   const sourceLabel = log.sourceCase ? ` / ${log.sourceCase}` : "";
   $("reviewDetail").classList.remove("hidden");
   $("reviewDetailTitle").textContent = log.name;

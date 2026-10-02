@@ -1234,7 +1234,357 @@ window.SCENARIOS = [
   }
 ];
 
+// 詐欺のように見えるが、公式経路で確認できる正常な連絡。
+// 「怪しい話はすべて即ブロック」ではなく、確認して判断する練習用。
+window.SCENARIOS.push(...[
+  {
+    id: "safe-decoy-scholarship",
+    name: "大学 奨学金窓口",
+    handle: "@student_support_official",
+    color: "#64b5f6",
+    isFraud: false,
+    type: "正規の奨学金案内",
+    tags: ["締切", "個人情報", "学校窓口"],
+    fraudDetectableTurn: null,
+    dangerTurn: null,
+    messages: [
+      { from: "them", text: "奨学金の書類に不備があり、明日が再提出期限です。", choices: [
+        { label: "どの書類が不足していますか？", points: 4 },
+        { label: "大学のポータルで通知を確認します", points: 5 },
+        { label: "学生課に電話して確認します", points: 5 }
+      ] },
+      { from: "them", text: "このDMに書類は送らず、大学ポータルの「契約・奨学金」から提出してください。", choices: [
+        { label: "公式ポータルから提出します", points: 5 },
+        { label: "先に学生課の窓口で確認します", points: 5 },
+        { label: "DMで個人情報を送らないようにします", points: 5 }
+      ] },
+      { from: "them", text: "ポータルに同じ通知が出ています。手数料や暗証番号は必要ありません。", choices: [
+        { label: "通知と学籍番号を照合して進めます", points: 5 },
+        { label: "公式経路だと確認できました", points: 5 },
+        { label: "期限は守りつつ、公式ポータルだけを使います", points: 5 }
+      ] }
+    ],
+    explanation: "締切と個人情報が絡むが、大学の公式ポータルと学生課で独立して確認でき、DMでの書類送信や支払いも求めていない。"
+  },
+  {
+    id: "safe-decoy-bank-alert",
+    name: "カード会社 利用確認",
+    handle: "@card_security_notice",
+    color: "#7986cb",
+    isFraud: false,
+    type: "正規のセキュリティ通知",
+    tags: ["不安喚起", "金銭", "公式アプリ"],
+    fraudDetectableTurn: null,
+    dangerTurn: null,
+    messages: [
+      { from: "them", text: "高額なカード利用があったため、一時的に利用を保留しました。", choices: [
+        { label: "金額と店舗名を教えてください", points: 4 },
+        { label: "カード会社の公式アプリを開きます", points: 5 },
+        { label: "カード裏面の番号に電話します", points: 5 }
+      ] },
+      { from: "them", text: "このDMのURLは使わず、公式アプリの利用履歴かカード裏面の窓口から確認してください。", choices: [
+        { label: "公式アプリの通知と一致するか見ます", points: 5 },
+        { label: "DMでは番号や暗証番号を返信しません", points: 5 },
+        { label: "既知の公式窓口へ直接連絡します", points: 5 }
+      ] },
+      { from: "them", text: "公式アプリに同じ決済の承認画面が出ています。DMでの情報入力は不要です。", choices: [
+        { label: "心当たりのある利用か確認して承認します", points: 5 },
+        { label: "心当たりがなければ公式アプリから停止します", points: 5 },
+        { label: "正規通知でも公式経路で処理します", points: 5 }
+      ] }
+    ],
+    explanation: "高額決済で不安を感じるが、DMでの情報入力を禁止し、公式アプリとカード記載の番号で確認できる正規通知。"
+  },
+  {
+    id: "safe-decoy-tax-refund",
+    name: "e-Tax 還付通知",
+    handle: "@tax_portal_notice",
+    color: "#4db6ac",
+    isFraud: false,
+    type: "正規の税還付通知",
+    tags: ["還付金", "公的機関", "e-Tax"],
+    fraudDetectableTurn: null,
+    dangerTurn: null,
+    messages: [
+      { from: "them", text: "申告内容の確認が完了し、還付金の処理状況が更新されました。", choices: [
+        { label: "還付額をここで教えてください", points: 3 },
+        { label: "e-Taxに直接ログインして確認します", points: 5 },
+        { label: "税務署の公式番号に確認します", points: 5 }
+      ] },
+      { from: "them", text: "口座番号をDMで送る必要はありません。e-Taxのメッセージボックスで確認してください。", choices: [
+        { label: "検索から公式e-Taxを開きます", points: 5 },
+        { label: "DMに口座情報は送りません", points: 5 },
+        { label: "ATM操作が不要なことも確認します", points: 5 }
+      ] },
+      { from: "them", text: "e-Tax上に同じ受付番号と処理状況が表示されています。追加の手数料はありません。", choices: [
+        { label: "受付番号が一致するので公式画面で確認します", points: 5 },
+        { label: "還付を待ち、別の支払いはしません", points: 5 },
+        { label: "正規の還付通知と判断します", points: 5 }
+      ] }
+    ],
+    explanation: "還付金の話だが、ATMへの誘導や追加支払いはなく、e-Taxの既知の公式画面と受付番号で照合できる。"
+  },
+  {
+    id: "safe-decoy-family-phone",
+    name: "母の新しいスマホ",
+    handle: "@mom_new_phone",
+    color: "#f48fb1",
+    isFraud: false,
+    type: "本人確認できる家族連絡",
+    tags: ["別アカウント", "家族", "本人確認"],
+    fraudDetectableTurn: null,
+    dangerTurn: null,
+    messages: [
+      { from: "them", text: "スマホを買い替えたら前のアカウントに入れなくなったので、新しいアカウントから連絡したよ。", choices: [
+        { label: "本当にお母さん？", points: 3 },
+        { label: "いつもの電話番号にかけてみるね", points: 5 },
+        { label: "家族しか知らないことを確認したい", points: 5 }
+      ] },
+      { from: "them", text: "もちろん。前の番号も通話はできるから、今からそっちで話そう。", choices: [
+        { label: "いつもの番号へこちらからかけます", points: 5 },
+        { label: "ビデオ通話で顔も確認します", points: 5 },
+        { label: "お金の話は確認が済むまでしません", points: 5 }
+      ] },
+      { from: "them", text: "通話で確認できたね。急ぎの送金や認証コードを頼む用事はないよ。", choices: [
+        { label: "本人確認できたので登録します", points: 5 },
+        { label: "別アカウントの時は今後も通話で確認します", points: 5 },
+        { label: "家族でも確認を省略しないようにします", points: 5 }
+      ] }
+    ],
+    explanation: "別アカウントはなりすましに見えるが、自分から既知の電話番号へかけ、通話と家族固有の情報で本人確認できる。"
+  },
+  {
+    id: "safe-decoy-marketplace",
+    name: "フリマアプリの購入者",
+    handle: "@verified_buyer",
+    color: "#ffb74d",
+    isFraud: false,
+    type: "正規の高額取引",
+    tags: ["高額取引", "フリマ", "エスクロー"],
+    fraudDetectableTurn: null,
+    dangerTurn: null,
+    messages: [
+      { from: "them", text: "出品中のカメラを提示価格ですぐ購入したいです。高額なので確認させてください。", choices: [
+        { label: "どんな確認が必要ですか？", points: 4 },
+        { label: "アプリ外での支払いや連絡はしません", points: 5 },
+        { label: "取引履歴と本人確認バッジを確認します", points: 5 }
+      ] },
+      { from: "them", text: "連絡と支払いはすべてこのアプリ内で進めましょう。外部URLや直接振込は使いません。", choices: [
+        { label: "アプリの補償条件を確認します", points: 5 },
+        { label: "公式の決済完了表示を待ちます", points: 5 },
+        { label: "直接口座やメールアドレスは送りません", points: 5 }
+      ] },
+      { from: "them", text: "アプリが代金を預かったという表示が出ました。商品を発送してください。", choices: [
+        { label: "自分のアプリにも決済完了が出ているか確認します", points: 5 },
+        { label: "補償対象の配送方法で発送します", points: 5 },
+        { label: "正規のエスクロー取引として進めます", points: 5 }
+      ] }
+    ],
+    explanation: "高額取引で警戒が必要だが、外部誘導や直接振込を拒否し、プラットフォームのエスクローと補償内で完結する。"
+  },
+  {
+    id: "safe-decoy-job",
+    name: "大学キャリアセンター",
+    handle: "@campus_career",
+    color: "#81c784",
+    isFraud: false,
+    type: "正規の高時給求人",
+    tags: ["高時給", "求人", "学内確認"],
+    fraudDetectableTurn: null,
+    dangerTurn: null,
+    messages: [
+      { from: "them", text: "時給3,000円のイベント通訳スタッフを急募しています。来週末の案件です。", choices: [
+        { label: "仕事内容と勤務場所を教えてください", points: 4 },
+        { label: "大学の求人票番号を確認します", points: 5 },
+        { label: "キャリアセンターの窓口に聞きます", points: 5 }
+      ] },
+      { from: "them", text: "学内ポータルの求人票C-2048に企業名、業務内容、保険、面接日が載っています。登録料は不要です。", choices: [
+        { label: "学内ポータルの求人票と照合します", points: 5 },
+        { label: "企業の公式サイトも確認します", points: 5 },
+        { label: "身分証や口座情報は採用後の公式手続きで出します", points: 5 }
+      ] },
+      { from: "them", text: "求人票と同じ内容です。まず学内で対面面接を行い、契約書を確認してから勤務開始です。", choices: [
+        { label: "対面面接と契約書を確認します", points: 5 },
+        { label: "キャリアセンターの紹介状を持っていきます", points: 5 },
+        { label: "前払いや物品購入がないことを確認しました", points: 5 }
+      ] }
+    ],
+    explanation: "高時給と急募で闇バイトのように見えるが、学内求人票、企業情報、対面面接、契約書を別経路で確認でき、前払いもない。"
+  },
+  {
+    id: "safe-decoy-charity",
+    name: "災害支援NPO",
+    handle: "@relief_npo_official",
+    color: "#ef9a9a",
+    isFraud: false,
+    type: "正規の寄付案内",
+    tags: ["災害", "寄付", "法人確認"],
+    fraudDetectableTurn: null,
+    dangerTurn: null,
+    messages: [
+      { from: "them", text: "緊急災害支援の寄付受付を開始しました。被災地で水と衛生用品が不足しています。", choices: [
+        { label: "今すぐ寄付したほうがいいですか？", points: 2 },
+        { label: "NPO法人の登記と活動実績を確認します", points: 5 },
+        { label: "自治体や公式サイトの支援先一覧を見ます", points: 5 }
+      ] },
+      { from: "them", text: "DMに個人名義の振込先は記載しません。法人番号と事業報告は公式サイトで公開しています。", choices: [
+        { label: "国税庁の法人番号サイトで照合します", points: 5 },
+        { label: "公式サイトを自分で検索して開きます", points: 5 },
+        { label: "寄付金の使途と監査報告を確認します", points: 5 }
+      ] },
+      { from: "them", text: "自治体の支援団体一覧からも同じ公式寄付ページを開けます。寄付は任意で期限もありません。", choices: [
+        { label: "自治体のリンクから公式ページを開きます", points: 5 },
+        { label: "活動内容に納得した範囲で寄付します", points: 5 },
+        { label: "急かされず、正規の支援先と確認できました", points: 5 }
+      ] }
+    ],
+    explanation: "災害と緊急性を扱うが、個人口座や即時送金を求めず、法人番号、事業報告、自治体の一覧から正規性を確認できる。"
+  },
+  {
+    id: "safe-decoy-crypto-alert",
+    name: "暗号資産取引所 セキュリティ",
+    handle: "@exchange_security",
+    color: "#9575cd",
+    isFraud: false,
+    type: "正規の取引所通知",
+    tags: ["暗号資産", "不正ログイン", "公式アプリ"],
+    fraudDetectableTurn: null,
+    dangerTurn: null,
+    messages: [
+      { from: "them", text: "新しい端末からログインがあったため、出金を一時停止しました。", choices: [
+        { label: "このDMで本人確認します", points: 1 },
+        { label: "取引所の公式アプリを開きます", points: 5 },
+        { label: "ブックマーク済みの公式サイトで確認します", points: 5 }
+      ] },
+      { from: "them", text: "DMでパスワード、2段階認証コード、シードフレーズを求めることはありません。", choices: [
+        { label: "それらの秘密情報は誰にも送りません", points: 5 },
+        { label: "公式アプリのセッション履歴を確認します", points: 5 },
+        { label: "公式窓口へ自分から問い合わせます", points: 5 }
+      ] },
+      { from: "them", text: "公式アプリに同じログイン時刻と端末情報が表示されています。アプリ内から拒否とパスワード変更ができます。", choices: [
+        { label: "心当たりがないのでアプリ内から拒否します", points: 5 },
+        { label: "公式アプリでパスワードを変更します", points: 5 },
+        { label: "正規の警告と確認できました", points: 5 }
+      ] }
+    ],
+    explanation: "暗号資産と出金停止は詐欺に見えるが、秘密情報を要求せず、公式アプリに同一の警告と対応機能がある。"
+  },
+  {
+    id: "safe-decoy-ticket-win",
+    name: "公式チケット抽選",
+    handle: "@ticket_app_notice",
+    color: "#ba68c8",
+    isFraud: false,
+    type: "正規の当選通知",
+    tags: ["当選", "支払期限", "公式アプリ"],
+    fraudDetectableTurn: null,
+    dangerTurn: null,
+    messages: [
+      { from: "them", text: "申し込み済みのライブチケットが当選しました。入金期限は明日18時です。", choices: [
+        { label: "本当に当選したのか気になります", points: 3 },
+        { label: "申込履歴から同じ公演か確認します", points: 5 },
+        { label: "公式チケットアプリを直接開きます", points: 5 }
+      ] },
+      { from: "them", text: "このDMからは支払えません。公式アプリの申込履歴に当選番号と座席種別が表示されています。", choices: [
+        { label: "アプリ内の当選番号を照合します", points: 5 },
+        { label: "DMにカード番号は入力しません", points: 5 },
+        { label: "申し込んだ公演日と席種が一致するか見ます", points: 5 }
+      ] },
+      { from: "them", text: "申込履歴と同じ当選内容です。支払いはアプリ内の公式決済だけが利用できます。", choices: [
+        { label: "公式アプリ内でのみ支払います", points: 5 },
+        { label: "当選番号が一致したので正規と判断します", points: 5 },
+        { label: "支払い後もアプリ内の発券状況を確認します", points: 5 }
+      ] }
+    ],
+    explanation: "当選と短い入金期限は怪しく見えるが、事前の申込履歴、当選番号、公式アプリ内決済で独立して確認できる。"
+  },
+  {
+    id: "safe-decoy-delivery",
+    name: "国際配送 関税確認",
+    handle: "@carrier_customs_notice",
+    color: "#90a4ae",
+    isFraud: false,
+    type: "正規の関税案内",
+    tags: ["配送", "関税", "追跡番号"],
+    fraudDetectableTurn: null,
+    dangerTurn: null,
+    messages: [
+      { from: "them", text: "海外通販の荷物が通関保留になりました。関税と消費税の確認が必要です。", choices: [
+        { label: "支払い用URLを送ってください", points: 1 },
+        { label: "通販サイトの注文番号と照合します", points: 5 },
+        { label: "配送会社の公式追跡ページを開きます", points: 5 }
+      ] },
+      { from: "them", text: "荷物の追跡番号はJP-4820-7715です。このDMのリンクではなく、配送会社の公式サイトで検索してください。", choices: [
+        { label: "公式サイトに追跡番号を直接入力します", points: 5 },
+        { label: "注文履歴の商品と発送元を確認します", points: 5 },
+        { label: "不安なら不在票ではなく公式窓口に連絡します", points: 5 }
+      ] },
+      { from: "them", text: "公式追跡画面に同じ商品と税額が表示されています。支払いは公式会員ページか配達時だけです。", choices: [
+        { label: "注文商品と税額を確認して公式ページで支払います", points: 5 },
+        { label: "配達時の支払いを選びます", points: 5 },
+        { label: "追跡番号と注文履歴が一致したので正規と判断します", points: 5 }
+      ] }
+    ],
+    explanation: "関税支払いは偽配送通知に似ているが、購入履歴、追跡番号、公式追跡画面の三点が一致し、DMのURLへの誘導もない。"
+  },
+  {
+    id: "safe-decoy-insurance",
+    name: "保険会社 給付金担当",
+    handle: "@insurance_claims",
+    color: "#4fc3f7",
+    isFraud: false,
+    type: "正規の保険給付案内",
+    tags: ["給付金", "口座", "担当者確認"],
+    fraudDetectableTurn: null,
+    dangerTurn: null,
+    messages: [
+      { from: "them", text: "先月ご請求いただいた入院給付金の審査が完了しました。振込口座の確認が必要です。", choices: [
+        { label: "口座番号をここで送ります", points: 0 },
+        { label: "保険証券の公式窓口に電話します", points: 5 },
+        { label: "契約者ページの請求履歴を確認します", points: 5 }
+      ] },
+      { from: "them", text: "このDMに口座番号は送らないでください。契約者ページの請求番号CL-8031から確認できます。", choices: [
+        { label: "請求番号が手元の控えと同じか照合します", points: 5 },
+        { label: "契約者ページをブックマークから開きます", points: 5 },
+        { label: "担当者名を公式窓口で確認します", points: 5 }
+      ] },
+      { from: "them", text: "請求履歴に同じ給付額と振込予定日が表示されています。手数料の支払いはありません。", choices: [
+        { label: "給付額と予定日を公式画面で確認します", points: 5 },
+        { label: "登録済み口座への振込を待ちます", points: 5 },
+        { label: "手数料や追加送金がないので正規と確認できました", points: 5 }
+      ] }
+    ],
+    explanation: "給付金と口座確認は還付金詐欺に似るが、実際の事前請求、請求番号、契約者ページ、公式窓口で照合でき、追加支払いもない。"
+  }
+]);
+
 window.PLAY_SETS = [
+  {
+    id: "scam-or-legit",
+    name: "詐欺か正規か・実戦判定",
+    badge: "詐欺6＋正規6",
+    description: "警察庁の投資詐欺実例と、怪しく見える正規連絡を半数ずつ混ぜた実戦セット。",
+    scenarioIds: [
+      "npa-investment-case01", "safe-decoy-bank-alert",
+      "npa-investment-case02", "safe-decoy-tax-refund",
+      "npa-investment-case03", "safe-decoy-crypto-alert",
+      "npa-investment-case04", "safe-decoy-marketplace",
+      "npa-investment-case05", "safe-decoy-job",
+      "npa-investment-case06", "safe-decoy-charity"
+    ]
+  },
+  {
+    id: "safe-decoy-cases",
+    name: "怪しいけど正規",
+    badge: "誤検知防止11件",
+    description: "最初は詐欺っぽいが、公式経路で確認すると正規だと分かるひっかけ練習。",
+    scenarioIds: [
+      "safe-decoy-scholarship", "safe-decoy-bank-alert", "safe-decoy-tax-refund",
+      "safe-decoy-family-phone", "safe-decoy-marketplace", "safe-decoy-job",
+      "safe-decoy-charity", "safe-decoy-crypto-alert", "safe-decoy-ticket-win",
+      "safe-decoy-delivery", "safe-decoy-insurance"
+    ]
+  },
   {
     id: "npa-investment-cases",
     name: "SNS投資詐欺・実例6ケース",

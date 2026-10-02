@@ -8,7 +8,7 @@
   <meta name="apple-mobile-web-app-title" content="あ，詐欺ね" />
   <link rel="icon" type="image/png" href="assets/app-icon.png" />
   <link rel="apple-touch-icon" href="assets/app-icon.png" />
-  <link rel="stylesheet" href="style.css?v=20261002-1" />
+  <link rel="stylesheet" href="style.css?v=20261002-2" />
 </head>
 <body>
   <main id="app" class="app-shell">
@@ -59,6 +59,8 @@
           <li>詐欺ではない会話も混ざる</li>
           <li>まれに押した瞬間アウトの選択肢がある</li>
           <li>1件100点：回答内容55点＋見極め30点＋速度15点</li>
+          <li>選択肢の質で回答内容の最大15点がリアルタイム加算される</li>
+          <li>各ターンの残り時間は25秒から減少する</li>
           <li>速度は1手平均8秒以内15点、15秒以内10点、25秒以内5点</li>
           <li>誤検知・見逃し・被害は0点（早押しだけでは得点できない）</li>
           <li>結果は最後に概要と詳細で確認できる</li>
@@ -170,7 +172,7 @@
             <span class="volume-value">1件 100pt</span>
           </div>
           <ul class="settings-score-rules">
-            <li><strong>55pt</strong> 回答内容：正しく判定する</li>
+            <li><strong>55pt</strong> 回答内容：正確さ40pt＋選択ボーナス最大15ptで評価</li>
             <li><strong>30pt</strong> 見極め：根拠が出た段階で止める</li>
             <li><strong>15pt</strong> 回答速度：1手平均8秒以内</li>
           </ul>
@@ -228,18 +230,24 @@
           <div id="chatName" class="chat-name">相手</div>
           <div id="chatStatus" class="chat-status">オンライン</div>
         </div>
-        <div id="scorePill" class="progress-pill battery-score tone-high">
-          <div class="battery-score-head">
-            <span class="battery-score-label">charge</span>
-            <span id="scoreDelta" class="battery-score-delta">+0</span>
+        <div class="live-hud" aria-label="残り時間とスコア">
+          <div id="turnTimer" class="turn-timer tone-safe">
+            <div class="turn-timer-head"><span>TIME</span><strong><span id="turnTimeValue">25</span><small>s</small></strong></div>
+            <div class="turn-timer-track"><div id="turnTimeFill" class="turn-timer-fill"></div></div>
           </div>
-          <div class="battery-score-body">
-            <div class="battery-shell" aria-hidden="true">
-              <div id="batteryLevel" class="battery-level"></div>
-              <div class="battery-cap"></div>
-              <div class="battery-bolt">CHG</div>
+          <div id="scorePill" class="progress-pill battery-score tone-low">
+            <div class="battery-score-head">
+              <span class="battery-score-label">score</span>
+              <span id="scoreDelta" class="battery-score-delta">+0</span>
             </div>
-            <span id="scenarioCount" class="battery-score-value">0</span>
+            <div class="battery-score-body">
+              <div class="battery-shell" aria-hidden="true">
+                <div id="batteryLevel" class="battery-level"></div>
+                <div class="battery-cap"></div>
+                <div class="battery-bolt">PTS</div>
+              </div>
+              <span id="scenarioCount" class="battery-score-value">0</span>
+            </div>
           </div>
         </div>
       </header>
@@ -307,7 +315,7 @@
     </section>
   </main>
 
-  <script src="scenarios.js?v=20261002-1"></script>
-  <script src="app.js?v=20261002-1"></script>
+  <script src="scenarios.js?v=20261002-2"></script>
+  <script src="app.js?v=20261002-2"></script>
 </body>
 </html>
