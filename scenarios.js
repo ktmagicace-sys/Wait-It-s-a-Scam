@@ -928,10 +928,320 @@ window.SCENARIOS = [
       }
     ],
     explanation: "個人情報の拡散をほのめかして電子ギフトを要求している。秘密保持を求める脅迫DMで、支払いに応じても解決する保証はない。"
+  },
+  {
+    id: "npa-investment-case01",
+    name: "著名投資家のアシスタント",
+    handle: "@gold_adviser_support",
+    color: "#d4a72c",
+    isFraud: true,
+    type: "SNS型投資詐欺／著名人なりすまし",
+    tags: ["著名人なりすまし", "必ずもうかる", "偽投資サイト", "追加送金"],
+    fraudDetectableTurn: 2,
+    dangerTurn: 3,
+    sourceCase: "警察庁 SNS型投資詐欺 Case 01",
+    sourceUrl: "https://www.npa.go.jp/bureau/safetylife/sos47/case/sns-romance/investment/#example",
+    messages: [
+      {
+        from: "them",
+        text: "投資家の公式広告からお申し込みありがとうございます。先生から紹介されたアシスタントです。",
+        choices: [
+          "どんな投資なのか聞かせてください",
+          "先生の公式アカウントから確認できますか？",
+          "広告の運営元と登録番号を教えてください"
+        ]
+      },
+      {
+        from: "them",
+        text: "金の価値が上がっている今が好機です。先生の指示なら利益は間違いないので、専用サイトに口座を作りましょう。",
+        choices: [
+          "専用サイトのURLを送ってください",
+          { label: "「間違いない」と言い切る投資は信用できません", detectFraud: true },
+          { label: "金融庁の登録業者から確認します", detectFraud: true }
+        ]
+      },
+      {
+        from: "them",
+        text: "サイト上でもう利益が出ています。先生の指示どおり、次はこの個人名義の口座へ追加送金してください。",
+        choices: [
+          { label: "表示された利益を信じて追加送金します", instantLose: true },
+          { label: "個人名義口座への送金はしません", detectFraud: true },
+          { label: "サイトの利益表示は信用せず警察に相談します", detectFraud: true }
+        ]
+      },
+      {
+        from: "them",
+        text: "今送れば利益を大きくできます。送金額を増やしてください。",
+        choices: [
+          { label: "資金を集めて送金します", instantLose: true },
+          { label: "これ以上は送金しません", detectFraud: true },
+          { label: "やり取りを保存して通報します", detectFraud: true }
+        ]
+      }
+    ],
+    explanation: "警察庁のCase 01を基に再構成。著名人と助手を名乗り、金投資の偽サイトで利益を見せて追加送金を重ねさせた事例。被害額は約6,300万円。"
+  },
+  {
+    id: "npa-investment-case02",
+    name: "先生の投資グループ",
+    handle: "@special_investment_class",
+    color: "#8f74d8",
+    isFraud: true,
+    type: "SNS型投資詐欺／サクラグループ",
+    tags: ["著名人なりすまし", "サクラ", "電子マネー", "偽利益"],
+    fraudDetectableTurn: 1,
+    dangerTurn: 3,
+    sourceCase: "警察庁 SNS型投資詐欺 Case 02",
+    sourceUrl: "https://www.npa.go.jp/bureau/safetylife/sos47/case/sns-romance/investment/#example",
+    messages: [
+      {
+        from: "them",
+        text: "著名な先生が指導する投資グループです。先生の言うとおりに取引すれば必ず利益が出ます。",
+        choices: [
+          "まずグループの投稿を見てみます",
+          { label: "利益を保証する勧誘は信用しません", detectFraud: true },
+          { label: "著名人の公式発信からなりすましでないか確認します", detectFraud: true }
+        ]
+      },
+      {
+        from: "them",
+        text: "みんな先生の指示で利益が出ました。あなたの取引サイトにも利益が表示されていますよ。",
+        choices: [
+          "ほかの参加者も言っているなら安心です",
+          { label: "グループ内の成功報告や画面表示だけでは判断しません", detectFraud: true },
+          { label: "第三者の金融機関で実際に出金できるか確認します", detectFraud: true }
+        ]
+      },
+      {
+        from: "them",
+        text: "次の取引枠を確保するため、指定口座への振込と電子マネーカードのコードを送ってください。",
+        choices: [
+          { label: "振込後にカードのコードも送ります", instantLose: true },
+          { label: "電子マネーのコードは絶対に送りません", detectFraud: true },
+          { label: "指定口座にも送金せず警察へ相談します", detectFraud: true }
+        ]
+      },
+      {
+        from: "them",
+        text: "今送らないと利益を受け取れません。コード番号の写真だけで大丈夫です。",
+        choices: [
+          { label: "コード番号の写真を送ります", instantLose: true },
+          { label: "今すぐグループを抜けます", detectFraud: true },
+          { label: "会話と送金先を記録して通報します", detectFraud: true }
+        ]
+      }
+    ],
+    explanation: "警察庁のCase 02を基に再構成。サクラが成功を装う投資グループと偽サイトで信用させ、振込と電子マネーのコード送信を要求した事例。被害額は1億円以上。"
+  },
+  {
+    id: "npa-investment-case03",
+    name: "新NISA情報交換グループ",
+    handle: "@nisa_learning_room",
+    color: "#3aa17e",
+    isFraud: true,
+    type: "SNS型投資詐欺／動画概要欄から誘導",
+    tags: ["新NISA", "外部SNS", "偽投資アプリ", "暗号資産"],
+    fraudDetectableTurn: 2,
+    dangerTurn: 3,
+    sourceCase: "警察庁 SNS型投資詐欺 Case 03",
+    sourceUrl: "https://www.npa.go.jp/bureau/safetylife/sos47/case/sns-romance/investment/#example",
+    messages: [
+      {
+        from: "them",
+        text: "新NISA解説動画の概要欄から参加された方向けの情報交換グループです。株の情報を共有しています。",
+        choices: [
+          "まずは情報を見るだけにします",
+          "動画配信者が運営しているグループですか？",
+          "運営会社と金融庁の登録番号を教えてください"
+        ]
+      },
+      {
+        from: "them",
+        text: "参加者はみんな利益を得ています。必ずもうかるので、この投資アプリをインストールしてください。",
+        choices: [
+          "みんなが使っているならインストールします",
+          { label: "「必ず」という投資話と未確認アプリは危険です", detectFraud: true },
+          { label: "公式ストアと金融庁登録を別に確認します", detectFraud: true }
+        ]
+      },
+      {
+        from: "them",
+        text: "取引を始めるため、指定口座へ振り込んでください。暗号資産をこのアドレスへ送る方法でも入金できます。",
+        choices: [
+          { label: "振込と暗号資産の送信を進めます", instantLose: true },
+          { label: "SNSで指定された口座やアドレスには送りません", detectFraud: true },
+          { label: "アプリと送信先を記録して相談します", detectFraud: true }
+        ]
+      },
+      {
+        from: "them",
+        text: "アプリの利益を増やすには追加入金が必要です。今日中にもう一度送ってください。",
+        choices: [
+          { label: "利益が出ているので追加送金します", instantLose: true },
+          { label: "画面上の利益を信じず、送金を止めます", detectFraud: true },
+          { label: "このグループを通報します", detectFraud: true }
+        ]
+      }
+    ],
+    explanation: "警察庁のCase 03を基に再構成。新NISA動画の概要欄から別SNSのグループに誘導し、偽アプリを使って振込と暗号資産の送信を重ねさせた事例。被害額は約2,000万円。"
+  },
+  {
+    id: "npa-investment-case04",
+    name: "SNSで知り合った女性",
+    handle: "@crypto_friend_chat",
+    color: "#e4779d",
+    isFraud: true,
+    type: "SNS型投資詐欺／暗号資産",
+    tags: ["親近感", "暗号資産", "偽アプリ", "出金手数料"],
+    fraudDetectableTurn: 2,
+    dangerTurn: 3,
+    sourceCase: "警察庁 SNS型投資詐欺 Case 04",
+    sourceUrl: "https://www.npa.go.jp/bureau/safetylife/sos47/case/sns-romance/investment/#example",
+    messages: [
+      {
+        from: "them",
+        text: "この間から話していて楽しいです。今なら暗号資産の投資がおすすめなので、あなたにも教えたいです。",
+        choices: [
+          "どんな取引なのか聞かせてください",
+          "投資の話は交友と切り離して考えます",
+          "暗号資産交換業者の名前を教えてください"
+        ]
+      },
+      {
+        from: "them",
+        text: "私も使っているこの専用アプリを入れてください。ここなら大きな利益を出せます。",
+        choices: [
+          "あなたが使っているならインストールします",
+          { label: "個人から勧められた投資アプリは入れません", detectFraud: true },
+          { label: "金融庁の登録と公式ストアを確認します", detectFraud: true }
+        ]
+      },
+      {
+        from: "them",
+        text: "利益を出金するには保証金が必要です。指定口座へ振り込んでください。",
+        choices: [
+          { label: "出金するために保証金を振り込みます", instantLose: true },
+          { label: "出金のための追加送金はしません", detectFraud: true },
+          { label: "アプリの利益表示を信用せず相談します", detectFraud: true }
+        ]
+      },
+      {
+        from: "them",
+        text: "保証金の次は税金の支払いが必要です。支払えば全額出金できます。",
+        choices: [
+          { label: "出金できるなら税金も振り込みます", instantLose: true },
+          { label: "税金を個人的な指定口座へ送ることはありません", detectFraud: true },
+          { label: "これまでの振込を金融機関と警察に相談します", detectFraud: true }
+        ]
+      }
+    ],
+    explanation: "警察庁のCase 04を基に再構成。SNSで知り合った相手が暗号資産アプリを勧め、出金の保証金や税金名目で繰り返し振り込ませた事例。被害額は1億円以上。"
+  },
+  {
+    id: "npa-investment-case05",
+    name: "投資コンサルのモニター募集",
+    handle: "@monitor_consulting",
+    color: "#eb8d35",
+    isFraud: true,
+    type: "SNS型投資詐欺／コンサル勧誘",
+    tags: ["モニター募集", "絶対もうかる", "増額要求", "繰り返し振込"],
+    fraudDetectableTurn: 1,
+    dangerTurn: 2,
+    sourceCase: "警察庁 SNS型投資詐欺 Case 05",
+    sourceUrl: "https://www.npa.go.jp/bureau/safetylife/sos47/case/sns-romance/investment/#example",
+    messages: [
+      {
+        from: "them",
+        text: "投資コンサルのモニター会員を募集中です。特別枠なので絶対にお得で、利益を出せます。",
+        choices: [
+          "モニターの条件を聞かせてください",
+          { label: "絶対にもうかるという投資勧誘は信用しません", detectFraud: true },
+          { label: "会社の実在と金融庁の登録を確認します", detectFraud: true }
+        ]
+      },
+      {
+        from: "them",
+        text: "まず指定口座へ入金してください。金額を増やすほど大きな利益になります。",
+        choices: [
+          { label: "まず少額を振り込んでみます", instantLose: true },
+          { label: "SNSで指定された口座には振り込みません", detectFraud: true },
+          { label: "入金額を増やすよう迫るのは不自然です", detectFraud: true }
+        ]
+      },
+      {
+        from: "them",
+        text: "前回より金額を増やせば利益を確定できます。ネットバンキングで今すぐ送ってください。",
+        choices: [
+          { label: "利益のために金額を増やして振り込みます", instantLose: true },
+          { label: "追加振込を止めて金融機関に連絡します", detectFraud: true },
+          { label: "相手と振込先の情報を警察に相談します", detectFraud: true }
+        ]
+      }
+    ],
+    explanation: "警察庁のCase 05を基に再構成。投資コンサルを自称してモニターを募り、絶対もうかると信じさせて振込額を繰り返し増やさせた事例。被害額は約1,400万円以上。"
+  },
+  {
+    id: "npa-investment-case06",
+    name: "著名人の上位取引プラン",
+    handle: "@premium_trade_assistant",
+    color: "#4d80c9",
+    isFraud: true,
+    type: "SNS型投資詐欺／追加被害",
+    tags: ["著名人なりすまし", "倍増プラン", "上位クラス", "資金凍結"],
+    fraudDetectableTurn: 2,
+    dangerTurn: 3,
+    sourceCase: "警察庁 SNS型投資詐欺 Case 06",
+    sourceUrl: "https://www.npa.go.jp/bureau/safetylife/sos47/case/sns-romance/investment/#example",
+    messages: [
+      {
+        from: "them",
+        text: "著名な先生の助手です。先生の投資グループで取引を始めれば、私が入金方法までサポートします。",
+        choices: [
+          "取引の内容を聞かせてください",
+          "先生の公式アカウントから助手だと確認できますか？",
+          "金融庁の登録業者名を教えてください"
+        ]
+      },
+      {
+        from: "them",
+        text: "お金を倍増させる特別プランがあります。上位クラスの取引に参加するため、追加で入金してください。",
+        choices: [
+          "倍になるなら追加資金を用意します",
+          { label: "資金の倍増をうたう投資話は信用しません", detectFraud: true },
+          { label: "上位クラスのための追加入金はしません", detectFraud: true }
+        ]
+      },
+      {
+        from: "them",
+        text: "追加入金の振込先はこの口座です。前回と名義が違いますが、クラス専用なので問題ありません。",
+        choices: [
+          { label: "説明を信じて新しい口座に振り込みます", instantLose: true },
+          { label: "振込のたびに口座が変わるのは詐欺のサインです", detectFraud: true },
+          { label: "これ以上の振込を止めて金融機関に相談します", detectFraud: true }
+        ]
+      },
+      {
+        from: "them",
+        text: "監督当局に資金を差し止められています。解除手数料を払えば、今までのお金も全部戻ります。",
+        choices: [
+          { label: "お金を取り戻すために解除手数料を払います", instantLose: true },
+          { label: "取り戻すための追加送金はしません", detectFraud: true },
+          { label: "被害回復を装った追加要求として警察に相談します", detectFraud: true }
+        ]
+      }
+    ],
+    explanation: "警察庁のCase 06を基に再構成。著名人と助手を名乗るグループで入金を重ねさせ、さらに倍増プランと上位取引を持ちかけ、資金凍結を口実に出金できなくした事例。被害額は約4,500万円。"
   }
 ];
 
 window.PLAY_SETS = [
+  {
+    id: "npa-investment-cases",
+    name: "SNS投資詐欺・実例6ケース",
+    badge: "警察庁事例ベース",
+    description: "警察庁SOS47の実際の事例Case 01〜06を基に、被害へ進む会話を再構成したセット。",
+    scenarioIds: ["npa-investment-case01", "npa-investment-case02", "npa-investment-case03", "npa-investment-case04", "npa-investment-case05", "npa-investment-case06"]
+  },
   {
     id: "starter-mix",
     name: "基本ミックス",

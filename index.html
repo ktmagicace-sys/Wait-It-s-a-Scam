@@ -8,7 +8,7 @@
   <meta name="apple-mobile-web-app-title" content="あ，詐欺ね" />
   <link rel="icon" type="image/png" href="assets/app-icon.png" />
   <link rel="apple-touch-icon" href="assets/app-icon.png" />
-  <link rel="stylesheet" href="style.css?v=20260529-5" />
+  <link rel="stylesheet" href="style.css?v=20261002-1" />
 </head>
 <body>
   <main id="app" class="app-shell">
@@ -55,9 +55,12 @@
         <h2>ルール</h2>
         <ul>
           <li>各ターンで返信を3択から選ぶ</li>
-          <li>詐欺だと思ったら「詐欺ね」ボタンを押す</li>
+          <li>詐欺の根拠が出たら「詐欺ね」ボタンを押す</li>
           <li>詐欺ではない会話も混ざる</li>
           <li>まれに押した瞬間アウトの選択肢がある</li>
+          <li>1件100点：回答内容55点＋見極め30点＋速度15点</li>
+          <li>速度は1手平均8秒以内15点、15秒以内10点、25秒以内5点</li>
+          <li>誤検知・見逃し・被害は0点（早押しだけでは得点できない）</li>
           <li>結果は最後に概要と詳細で確認できる</li>
         </ul>
       </div>
@@ -161,6 +164,18 @@
           <button id="closeSettingsBtn" class="settings-close-btn" type="button" aria-label="閉じる">×</button>
         </div>
         <button id="muteToggleBtn" class="secondary-btn settings-mute-btn" type="button">音をミュート</button>
+        <div class="settings-section scoring-rule-section">
+          <div class="volume-control">
+            <span class="volume-label">採点ルール</span>
+            <span class="volume-value">1件 100pt</span>
+          </div>
+          <ul class="settings-score-rules">
+            <li><strong>55pt</strong> 回答内容：正しく判定する</li>
+            <li><strong>30pt</strong> 見極め：根拠が出た段階で止める</li>
+            <li><strong>15pt</strong> 回答速度：1手平均8秒以内</li>
+          </ul>
+          <p class="settings-copy">誤検知・見逃し・被害は0pt。早押しだけでは得点できません。</p>
+        </div>
         <div class="settings-section">
           <div class="volume-control">
             <span class="volume-label">BGMタイプ</span>
@@ -292,7 +307,7 @@
     </section>
   </main>
 
-  <script src="scenarios.js?v=20260529-5"></script>
-  <script src="app.js?v=20260529-5"></script>
+  <script src="scenarios.js?v=20261002-1"></script>
+  <script src="app.js?v=20261002-1"></script>
 </body>
 </html>

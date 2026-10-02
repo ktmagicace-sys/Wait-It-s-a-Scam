@@ -134,12 +134,26 @@ const FEEDBACK_COPY = {
 const BGM_STEP_MS = 170;
 const BGM_BAR_STEPS = 8;
 const SCORE_PER_SCENARIO = 100;
-const ACTION_PENALTY_SECONDS = 10;
 const MAX_VOLUME_MULTIPLIER = 2;
-const RESULT_SCORE_PENALTIES = {
-  missed: 90,
-  instant_scam: 120,
-  false_positive: 70
+const SCORE_RULES = {
+  content: {
+    correct_detected: 55,
+    correct_safe: 55,
+    early_detected: 45,
+    late_detected: 45,
+    false_positive: 0,
+    missed: 0,
+    instant_scam: 0
+  },
+  stage: {
+    correct_detected: 30,
+    correct_safe: 30,
+    early_detected: 15,
+    late_detected: 10,
+    false_positive: 0,
+    missed: 0,
+    instant_scam: 0
+  }
 };
 const BIG_SCORE_SWING_THRESHOLD = 60;
 const BGM_THEMES = {
@@ -957,7 +971,8 @@ function normalizeSession(session) {
   const actionCount = session.summary?.actionCount ?? logs.length;
   const totalSec = session.summary?.totalSec ?? Math.round(logs.reduce((sum, log) => sum + (log.elapsedMs || 0), 0) / 1000);
   const summaryShape = computeResults(logs, totalSec, actionCount);
-  const summary = session.summary ? { ...session.summary } : summaryShape;
+  // 保存済みの履歴も現行の採点ルールでそろえる。
+  const summary = session.summary ? { ...session.summary, ...summaryShape } : summaryShape;
 
   return {
     playedAt: session.playedAt || new Date().toISOString(),
@@ -1025,22 +1040,36 @@ function baseScoreForRun() {
   return state.activeScenarios.length * SCORE_PER_SCENARIO;
 }
 
-function liveTimePenalty() {
-  if (!state.startedAt) return 0;
-  return Math.floor((nowMs() - state.startedAt) / 1000);
+function speedPoints(elapsedMs, reachedTurn = 1) {
+  const secondsPerTurn = (Math.max(0, elapsedMs) / 1000) / Math.max(1, reachedTurn);
+  if (secondsPerTurn <= 8) return 15;
+  if (secondsPerTurn <= 15) return 10;
+  if (secondsPerTurn <= 25) return 5;
+  return 0;
+}
+
+function scenarioScoreBreakdown(result, elapsedMs, reachedTurn) {
+  const contentPoints = SCORE_RULES.content[result] || 0;
+  const stagePoints = SCORE_RULES.stage[result] || 0;
+  // 誤検知・見逃し・被害では、早さだけで得点できない。
+  const speedScore = contentPoints > 0 ? speedPoints(elapsedMs, reachedTurn) : 0;
+  return {
+    contentPoints,
+    stagePoints,
+    speedPoints: speedScore,
+    scenarioScore: contentPoints + stagePoints + speedScore
+  };
 }
 
 function currentLiveScore() {
-  const score = baseScoreForRun() - liveTimePenalty() - (state.actionCount * ACTION_PENALTY_SECONDS) - accumulatedResultPenalty();
-  return Math.max(0, score);
-}
-
-function accumulatedResultPenalty() {
-  return state.logs.reduce((sum, log) => sum + (log.scorePenalty || 0), 0);
-}
-
-function resultScorePenalty(result) {
-  return RESULT_SCORE_PENALTIES[result] || 0;
+  const lostPoints = state.logs.reduce((sum, log) => {
+    const breakdown = scenarioScoreBreakdown(log.result, log.elapsedMs, log.reachedTurn);
+    return sum + (SCORE_PER_SCENARIO - breakdown.scenarioScore);
+  }, 0);
+  const currentSpeedLoss = state.scenarioStartedAt && !state.locked
+    ? 15 - speedPoints(nowMs() - state.scenarioStartedAt, state.turnIndex + 1)
+    : 0;
+  return Math.max(0, baseScoreForRun() - lostPoints - currentSpeedLoss);
 }
 
 function updateScorePill() {
@@ -2098,26 +2127,28 @@ function renderMenuSummary() {
   const sessions = state.sessionHistory;
   const bestSession = sessions.reduce((best, session) => {
     if (!best) return session;
-    return session.summary.finalScore > best.summary.finalScore ? session : best;
+    return session.summary.scoreRate > best.summary.scoreRate ? session : best;
   }, null);
   const bestScore = bestSession?.summary.finalScore || 0;
+  const bestMaxScore = bestSession?.summary.baseScore || 0;
+  const bestRate = bestSession?.summary.scoreRate || 0;
   const rankSteps = [
-    { label: "C", min: 0, next: 1200 },
-    { label: "B", min: 1200, next: 2600 },
-    { label: "B+", min: 2600, next: 4200 },
-    { label: "A", min: 4200, next: 6200 },
-    { label: "A+", min: 6200, next: 8500 },
-    { label: "S", min: 8500, next: null }
+    { label: "C", min: 0, next: 55 },
+    { label: "B", min: 55, next: 65 },
+    { label: "B+", min: 65, next: 75 },
+    { label: "A", min: 75, next: 85 },
+    { label: "A+", min: 85, next: 95 },
+    { label: "S", min: 95, next: null }
   ];
-  const rank = [...rankSteps].reverse().find((step) => bestScore >= step.min) || rankSteps[0];
-  const nextRankGap = rank.next === null ? 0 : Math.max(rank.next - bestScore, 0);
+  const rank = [...rankSteps].reverse().find((step) => bestRate >= step.min) || rankSteps[0];
+  const nextRankGap = rank.next === null ? 0 : Math.max(rank.next - bestRate, 0);
   const rankSpan = rank.next === null ? 1 : Math.max(rank.next - rank.min, 1);
-  const progress = rank.next === null ? 1 : Math.min((bestScore - rank.min) / rankSpan, 1);
+  const progress = rank.next === null ? 1 : Math.min((bestRate - rank.min) / rankSpan, 1);
 
   $("menuRankValue").textContent = rank.label;
-  $("menuHighScoreValue").textContent = `${bestScore.toLocaleString("ja-JP")} pt`;
+  $("menuHighScoreValue").textContent = bestSession ? `${bestScore}/${bestMaxScore} pt` : "0 pt";
   $("menuHistoryMeta").textContent = `履歴 ${sessions.length}件`;
-  $("menuNextRankText").textContent = rank.next === null ? "最高ランク到達" : `次まで ${nextRankGap.toLocaleString("ja-JP")} pt`;
+  $("menuNextRankText").textContent = rank.next === null ? "最高ランク到達" : `次まで ${nextRankGap}%`;
   $("menuProgressFill").style.width = `${Math.max(12, Math.round(progress * 100))}%`;
 }
 
@@ -2317,6 +2348,7 @@ function finishScenario(actionType, detail) {
   const scenario = currentScenario();
   const elapsedMs = nowMs() - state.scenarioStartedAt;
   const judgedTurn = detail?.judgedTurn ?? null;
+  const reachedTurn = detail?.selectedTurn ?? Math.min(state.turnIndex + 1, scenario.messages.length);
 
   let result = "";
   let statusLabel = "";
@@ -2348,7 +2380,7 @@ function finishScenario(actionType, detail) {
     }
   }
 
-  const scorePenalty = resultScorePenalty(result);
+  const scoreBreakdown = scenarioScoreBreakdown(result, elapsedMs, reachedTurn);
 
   state.logs.push({
     playSetId: currentPlaySet()?.id || null,
@@ -2357,12 +2389,14 @@ function finishScenario(actionType, detail) {
     type: scenario.type,
     isFraud: scenario.isFraud,
     tags: scenario.tags,
+    sourceCase: scenario.sourceCase || null,
+    sourceUrl: scenario.sourceUrl || null,
     result,
     statusLabel,
     actionType,
-    scorePenalty,
+    ...scoreBreakdown,
     judgedTurn,
-    reachedTurn: state.turnIndex + 1,
+    reachedTurn,
     elapsedMs,
     explanation: scenario.explanation
   });
@@ -2371,7 +2405,7 @@ function finishScenario(actionType, detail) {
   showFeedback(result);
   playSfx(feedbackSound(result));
   updateScorePill();
-  triggerScorePillFx(-scorePenalty);
+  triggerScorePillFx(-(SCORE_PER_SCENARIO - scoreBreakdown.scenarioScore));
   const runToken = state.runToken;
 
   setTimeout(() => {
@@ -2403,10 +2437,11 @@ function computeResults(logs, totalSec, actionCount) {
   const earlyDetected = logs.filter((log) => log.result === "early_detected").length;
   const lateDetected = logs.filter((log) => log.result === "late_detected").length;
   const baseScore = total * SCORE_PER_SCENARIO;
-  const timePenalty = totalSec;
-  const actionPenalty = actionCount * ACTION_PENALTY_SECONDS;
-  const resultPenalty = logs.reduce((sum, log) => sum + (log.scorePenalty ?? resultScorePenalty(log.result)), 0);
-  const finalScore = Math.max(0, baseScore - timePenalty - actionPenalty - resultPenalty);
+  const breakdowns = logs.map((log) => scenarioScoreBreakdown(log.result, log.elapsedMs, log.reachedTurn));
+  const contentPoints = breakdowns.reduce((sum, item) => sum + item.contentPoints, 0);
+  const stagePoints = breakdowns.reduce((sum, item) => sum + item.stagePoints, 0);
+  const speedPointsTotal = breakdowns.reduce((sum, item) => sum + item.speedPoints, 0);
+  const finalScore = contentPoints + stagePoints + speedPointsTotal;
 
   return {
     total,
@@ -2420,10 +2455,11 @@ function computeResults(logs, totalSec, actionCount) {
     bad: missed + instantScam,
     actionCount,
     baseScore,
-    timePenalty,
-    actionPenalty,
-    resultPenalty,
+    contentPoints,
+    stagePoints,
+    speedPoints: speedPointsTotal,
     finalScore,
+    scoreRate: baseScore ? Math.round((finalScore / baseScore) * 100) : 0,
     totalSec,
     avgSec: Math.round(totalSec / Math.max(total, 1))
   };
@@ -2454,17 +2490,18 @@ function renderResults() {
 
 function scoreRank(summary) {
   const accuracy = summary.total ? summary.correct / summary.total : 0;
+  const scoreRate = summary.baseScore ? summary.finalScore / summary.baseScore : 0;
 
-  if (summary.bad === 0 && summary.warn <= 1 && summary.finalScore >= 88) {
+  if (summary.bad === 0 && summary.warn <= 1 && scoreRate >= 0.9) {
     return { label: "サイコー！", mark: "S", tone: "amazing", comment: "ノリと判断が両立している。" };
   }
-  if (summary.bad <= 1 && accuracy >= 0.8 && summary.finalScore >= 72) {
+  if (summary.bad <= 1 && accuracy >= 0.8 && scoreRate >= 0.75) {
     return { label: "キレキレ", mark: "A", tone: "great", comment: "かなり安定して見抜けている。" };
   }
-  if (summary.bad <= 2 && accuracy >= 0.6 && summary.finalScore >= 52) {
+  if (summary.bad <= 2 && accuracy >= 0.6 && scoreRate >= 0.55) {
     return { label: "まずまず", mark: "B", tone: "good", comment: "悪くないが、まだ雑に流される場面がある。" };
   }
-  if (summary.bad <= 3 && summary.finalScore >= 34) {
+  if (summary.bad <= 3 && scoreRate >= 0.35) {
     return { label: "要注意", mark: "C", tone: "warn", comment: "危ない会話に引っ張られやすい。" };
   }
   return { label: "キケン", mark: "X", tone: "danger", comment: "反応より先に確認の癖を作りたい。" };
@@ -2524,7 +2561,6 @@ function renderResultsFromSession(session) {
   const comment = buildResultCommentary(summary, logs, rank, timingSummary);
   state.resultReviewOpen = false;
   syncTimingReviewUi();
-
   $("resultHero").innerHTML = `
     <div id="resultBurst" class="result-burst tone-${rank.tone}">
       <div class="result-stage-banner">
@@ -2550,6 +2586,20 @@ function renderResultsFromSession(session) {
     <div class="analysis-panel">
       <div class="analysis-panel-title">分析レポート</div>
       <div class="analysis-panel-copy">${comment.summary}</div>
+      <div class="analysis-score-grid" aria-label="得点内訳">
+        <div class="analysis-score-item">
+          <span class="analysis-score-label">回答内容</span>
+          <strong>${summary.contentPoints}<small>pt</small></strong>
+        </div>
+        <div class="analysis-score-item">
+          <span class="analysis-score-label">見極め</span>
+          <strong>${summary.stagePoints}<small>pt</small></strong>
+        </div>
+        <div class="analysis-score-item">
+          <span class="analysis-score-label">回答速度</span>
+          <strong>${summary.speedPoints}<small>pt</small></strong>
+        </div>
+      </div>
     </div>
   `;
   $("timingReviewSummary").textContent = timingSummary.summaryText;
@@ -2740,12 +2790,14 @@ function renderReviewPicker(logs) {
 }
 
 function renderReviewDetail(log) {
+  const score = scenarioScoreBreakdown(log.result, log.elapsedMs, log.reachedTurn);
+  const sourceLabel = log.sourceCase ? ` / ${log.sourceCase}` : "";
   $("reviewDetail").classList.remove("hidden");
   $("reviewDetailTitle").textContent = log.name;
   $("reviewDetailStatus").textContent = log.timingLabel || log.statusLabel;
   $("reviewDetailStatus").className = `review-status ${log.timingTone || statusClass(log.result)}`;
   $("reviewDetailMeta").textContent =
-    `${log.type} / ${log.tags.join("・")} / ${Math.round(log.elapsedMs / 1000)}秒 / ${judgedTurnLabel(log.judgedTurn)}で判断`;
+    `${score.scenarioScore}/100pt / ${log.type} / ${Math.round(log.elapsedMs / 1000)}秒 / ${judgedTurnLabel(log.judgedTurn)}で判断${sourceLabel}`;
   $("reviewDetailBody").textContent = `${log.timingMeta} ${log.explanation}`;
 }
 

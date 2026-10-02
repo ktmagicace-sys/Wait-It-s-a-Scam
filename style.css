@@ -1269,6 +1269,58 @@ button {
   gap: 8px;
 }
 
+.settings-score-rules {
+  margin: 10px 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 8px;
+  color: #d4dee8;
+  font-size: calc(13px * var(--font-scale));
+  line-height: 1.45;
+}
+
+.settings-score-rules strong {
+  display: inline-block;
+  min-width: 42px;
+  color: #6de3ff;
+}
+
+.analysis-score-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.analysis-score-item {
+  display: grid;
+  gap: 3px;
+  padding: 10px 8px;
+  border: 1px solid rgba(109, 227, 255, 0.18);
+  border-radius: 12px;
+  background: rgba(7, 19, 31, 0.58);
+  text-align: center;
+}
+
+.analysis-score-label {
+  color: #9fb0c1;
+  font-size: calc(10px * var(--font-scale));
+  font-weight: 800;
+}
+
+.analysis-score-item strong {
+  color: #f4fbff;
+  font-size: calc(20px * var(--font-scale));
+  line-height: 1;
+}
+
+.analysis-score-item small {
+  margin-left: 2px;
+  color: #6de3ff;
+  font-size: 0.52em;
+}
+
 .theme-switcher {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(150px, 100%), 1fr));
