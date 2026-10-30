@@ -9,6 +9,7 @@
   <link rel="icon" type="image/png" href="assets/app-icon.png" />
   <link rel="apple-touch-icon" href="assets/app-icon.png" />
   <link rel="stylesheet" href="style.css?v=20261002-2" />
+  <link rel="stylesheet" href="branch-game.css?v=20261030-1" />
 </head>
 <body>
   <main id="app" class="app-shell">
@@ -268,6 +269,11 @@
       <div class="dm-layout">
         <aside id="dmList" class="dm-list" aria-label="DM一覧"></aside>
         <section class="chat-panel">
+          <section id="branchStatus" class="branch-status" hidden aria-label="会話と冷静さ">
+            <div class="branch-status-head"><span id="branchDepth"></span><span id="branchCalmValue"></span></div>
+            <div id="branchCalmMeter" class="branch-calm-track" role="progressbar" aria-label="冷静さ" aria-valuemin="0" aria-valuemax="100" aria-valuenow="100"><div id="branchCalmFill" class="branch-calm-fill"></div></div>
+            <p id="branchHint"></p>
+          </section>
           <div id="messageArea" class="message-area"></div>
           <div id="feedbackOverlay" class="feedback-overlay" aria-live="polite"></div>
           <div class="action-panel">
@@ -316,6 +322,8 @@
   </main>
 
   <script src="scenarios.js?v=20261002-2"></script>
-  <script src="app.js?v=20261002-2"></script>
+  <script src="branch-game.js?v=20261030-1"></script>
+  <script src="branch-scenarios.js?v=20261030-1"></script>
+  <script src="app.js?v=20261030-branch-1"></script>
 </body>
 </html>

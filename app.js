@@ -4,6 +4,7 @@
 const state = {
   currentIndex: 0,
   turnIndex: 0,
+  branchSession: null,
   actionCount: 0,
   logs: [],
   activeScenarios: [],
@@ -1939,6 +1940,33 @@ function currentScenario() {
   return state.activeScenarios[state.currentIndex];
 }
 
+function currentTurn() {
+  const scenario = currentScenario();
+  return state.branchSession
+    ? window.BranchGame.current(scenario, state.branchSession)
+    : scenario.messages[state.turnIndex];
+}
+
+function scenarioTurnCount(scenario) {
+  return scenario.nodes ? scenario.maxTurns : scenario.messages.length;
+}
+
+function renderBranchStatus() {
+  const session = state.branchSession;
+  const panel = $("branchStatus");
+  panel.hidden = !session;
+  if (!session) return;
+  $("branchDepth").textContent = `会話 ${session.depth} / 3`;
+  $("branchCalmValue").textContent = `冷静さ ${session.calm} / 100`;
+  $("branchCalmFill").style.width = `${session.calm}%`;
+  $("branchCalmMeter").setAttribute("aria-valuenow", String(session.calm));
+  $("branchHint").textContent = session.depth === 3
+    ? "最後の会話。返信で終了、または「あ，詐欺ね」で判定。"
+    : "返信で会話を進めると冷静さ−15。怪しいと見抜いたら「あ，詐欺ね」。";
+  const actionLabel = $("actionLabel");
+  if (actionLabel) actionLabel.textContent = session.depth === 3 ? "最後の対応を選ぶ" : "返信を選ぶ";
+}
+
 function playSets() {
   return window.PLAY_SETS || [];
 }
@@ -2138,6 +2166,7 @@ function renderDmList() {
 
 function renderScenario() {
   const scenario = currentScenario();
+  state.branchSession = scenario.nodes ? window.BranchGame.start(scenario) : null;
   state.turnIndex = 0;
   state.scenarioStartedAt = nowMs();
   state.turnStartedAt = nowMs();
@@ -2270,7 +2299,8 @@ function setFraudButtonVisible(visible) {
 
 function showTurnMessage() {
   const scenario = currentScenario();
-  const turn = scenario.messages[state.turnIndex];
+  const turn = currentTurn();
+  renderBranchStatus();
   if (!turn) {
     finishScenario("completed", null);
     return;
@@ -2280,6 +2310,10 @@ function showTurnMessage() {
   updateTurnTimer();
   playSfx("incoming");
   renderChoices(turn.choices);
+  if (state.branchSession) {
+    const area = $("messageArea");
+    area.scrollTop = state.turnIndex === 0 ? 0 : area.scrollHeight;
+  }
 }
 
 function normalizeChoice(choice) {
@@ -2291,7 +2325,9 @@ function normalizeChoice(choice) {
     label: choice.label,
     instantLose: Boolean(choice.instantLose),
     detectFraud: Boolean(choice.detectFraud),
-    points: Number.isFinite(choice.points) ? choice.points : null
+    points: Number.isFinite(choice.points) ? choice.points : null,
+    next: choice.next || null,
+    outcome: choice.outcome || null
   };
 }
 
@@ -2343,6 +2379,7 @@ function chooseReply(choice, choiceIndex) {
   if (state.locked) return;
   if (!tutorialAllowsChoice(choiceIndex)) return;
 
+  state.locked = true;
   ensureAudioContext();
   state.actionCount += 1;
   addMessage(choice.label, "me");
@@ -2351,6 +2388,25 @@ function chooseReply(choice, choiceIndex) {
   const selectedTurn = state.turnIndex + 1;
   const choiceAward = awardChoicePoints(choicePointsFor(scenario, choice, choiceIndex, selectedTurn));
   if (choiceAward > 0) addSystemNote(`選択ボーナス +${choiceAward}pt`);
+
+  if (state.branchSession) {
+    const outcome = window.BranchGame.reply(scenario, state.branchSession, choiceIndex);
+    $("choices").innerHTML = "";
+    setFraudButtonVisible(false);
+    renderBranchStatus();
+    const runToken = state.runToken;
+    setTimeout(() => {
+      if (runToken !== state.runToken) return;
+      if (outcome) {
+        finishScenario(outcome, { choice: choice.label, choiceIndex, selectedTurn });
+      } else {
+        state.turnIndex = state.branchSession.depth - 1;
+        showTurnMessage();
+        state.locked = false;
+      }
+    }, 260);
+    return;
+  }
 
   // 危険行動に近い選択肢を簡易的に判定します。
   // 0番目の選択肢は、多くのシナリオで相手の誘導に乗る選択として作っています。
@@ -2396,10 +2452,11 @@ function chooseReply(choice, choiceIndex) {
     if (state.tutorial.active && state.tutorial.pendingStepIndex !== null) {
       goToTutorialStep(state.tutorial.pendingStepIndex);
     }
-    if (state.turnIndex >= scenario.messages.length) {
+    if (state.turnIndex >= scenarioTurnCount(scenario)) {
       finishScenario("completed", { choice: choice.label, choiceIndex, selectedTurn, riskyChoice });
     } else {
       showTurnMessage();
+      state.locked = false;
     }
   }, 260);
 }
@@ -2432,7 +2489,7 @@ function finishScenario(actionType, detail) {
   const scenario = currentScenario();
   const elapsedMs = nowMs() - state.scenarioStartedAt;
   const judgedTurn = detail?.judgedTurn ?? null;
-  const reachedTurn = detail?.selectedTurn ?? Math.min(state.turnIndex + 1, scenario.messages.length);
+  const reachedTurn = detail?.selectedTurn ?? Math.min(state.turnIndex + 1, scenarioTurnCount(scenario));
 
   let result = "";
   let statusLabel = "";
@@ -2457,7 +2514,7 @@ function finishScenario(actionType, detail) {
   } else {
     if (scenario.isFraud) {
       result = "missed";
-      statusLabel = "見逃し";
+      statusLabel = state.branchSession ? "詐欺の判定なし" : "見逃し";
     } else {
       result = "correct_safe";
       statusLabel = "正解";
@@ -2484,11 +2541,18 @@ function finishScenario(actionType, detail) {
     judgedTurn,
     reachedTurn,
     elapsedMs,
+    branchPath: state.branchSession ? state.branchSession.history.map(step => ({ ...step })) : null,
+    finalNodeId: state.branchSession?.nodeId || null,
+    calmRemaining: state.branchSession?.calm ?? null,
     explanation: scenario.explanation
   });
 
   addSystemNote(statusLabel);
   showFeedback(result);
+  if (state.branchSession && result === "missed") {
+    $("feedbackOverlay").querySelector(".feedback-title").textContent = "会話終了";
+    $("feedbackOverlay").querySelector(".feedback-text").textContent = "被害は回避。今回は詐欺の連絡だった。「あ，詐欺ね」で見抜こう。";
+  }
   playSfx(feedbackSound(result));
   updateScorePill();
   triggerScorePillFx(currentLiveScore() - scoreBeforeFinish);
@@ -2885,6 +2949,18 @@ function renderReviewDetail(log) {
   $("reviewDetailMeta").textContent =
     `${score.scenarioScore}/100pt / ${log.type} / ${Math.round(log.elapsedMs / 1000)}秒 / ${judgedTurnLabel(log.judgedTurn)}で判断${sourceLabel}`;
   $("reviewDetailBody").textContent = `${log.timingMeta} ${log.explanation}`;
+  if (log.branchPath) {
+    const steps = log.branchPath.map((step, i) => `${i + 1}. 相手：${step.message}\nあなた：${step.reply}`).join("\n\n");
+    const scenario = window.SCENARIOS.find(item => item.id === log.scenarioId);
+    const finalText = scenario?.nodes?.[log.finalNodeId]?.text;
+    const finalStep = log.branchPath[log.branchPath.length - 1];
+    const lastMessage = finalText && finalStep?.nodeId !== log.finalNodeId ? `\n\n最後の相手：${finalText}` : "";
+    const judgment = log.actionType === "fraud_button" ? "\nあなた：あ，詐欺ね" : "";
+    const path = document.createElement("p");
+    path.style.whiteSpace = "pre-wrap";
+    path.textContent = `冷静さ ${log.calmRemaining} / 100\n\n${steps}${lastMessage}${judgment}`;
+    $("reviewDetailBody").appendChild(path);
+  }
 }
 
 function syncSelectedSetFromSession() {
